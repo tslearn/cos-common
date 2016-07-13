@@ -1,0 +1,9 @@
+# Specifies files to intentionally ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+.idea/
+target/
+*.swp
+*.iml
+.DS_Store
+Thumbs.db
