@@ -1,6 +1,9 @@
 package org.companyos.dev.cos_common;
 
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
 /**
+ *
  * Created by tianshuo on 16/7/13.
  */
 public class COSReturn<T> {
@@ -9,7 +12,7 @@ public class COSReturn<T> {
     private String debug;
     private T ret;
 
-    public COSReturn(boolean ok) {
+    private COSReturn(boolean ok) {
         this.ok = ok;
     }
 
@@ -45,7 +48,7 @@ public class COSReturn<T> {
     }
 
     public static <E> COSReturn<E> success() {
-        return new COSReturn<E>(true);
+        return new COSReturn<>(true);
     }
 
     public static <E> COSReturn<E> success(E ret) {
@@ -53,7 +56,7 @@ public class COSReturn<T> {
     }
 
     public static <E> COSReturn<E> error() {
-        return new COSReturn<E>(false);
+        return new COSReturn<>(false);
     }
 
     public static <E> COSReturn<E> error(String message) {
