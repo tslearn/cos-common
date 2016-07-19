@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.companyos.dev.cos_common.CCThread;
+
 class OTMessageDelayPool extends OTThread { 
   final static private int DelayPoolSize = 65535;
 
@@ -86,11 +88,11 @@ class OTMessageDelayPool extends OTThread {
           }
         }
         else {
-          OT.Tools.trySleepNanoSeconds(1000);
+          CCThread.trySleepNanoSeconds(1000);
         }
       }
       else {
-        OT.Tools.trySleepNanoSeconds(1000);
+    	  CCThread.trySleepNanoSeconds(1000);
       }
     }
     System.out.println("System thread for delay pool terminal");

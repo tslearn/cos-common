@@ -7,6 +7,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.companyos.dev.cos_common.CCReflect;
+
 
 public class OTNode {
   private static final ConcurrentHashMap<Class<?>, Object> $nastedClassObject = new ConcurrentHashMap<Class<?>, Object>();
@@ -118,8 +120,8 @@ public class OTNode {
       return OTReturn.getSysError().setM(errorMsg).setE(e);
     }
     catch (IllegalArgumentException e) {    
-      String calledArgs = OT.Tools.buildCallArgsString(args);
-      String methodArgs = OT.Tools.buildMethodArgsString(method);
+      String calledArgs = CCReflect.buildCallArgsString(args);
+      String methodArgs = CCReflect.buildMethodArgsString(method);
       
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"
           + currentThread.currentMsg.msgName + " Arguments Not Match!"

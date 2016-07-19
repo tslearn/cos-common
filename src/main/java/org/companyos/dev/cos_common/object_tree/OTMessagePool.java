@@ -58,7 +58,7 @@ final class OTMessagePool {
     String debug = null;
     if (OT.Runtime.isDebug) {
       StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-      StringBuilder sb = OT.Tools.getStringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.append(" ").append(thisMsg.target.$getPath()).append(": (")
           .append(callerStacks[3].getFileName()).append(":")
           .append(callerStacks[3].getLineNumber()).append(")\r\n")
@@ -92,7 +92,7 @@ final class OTMessagePool {
     String debug = null;
     if (OT.Runtime.isDebug) {
       StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-      StringBuilder sb = OT.Tools.getStringBuilder();
+      StringBuilder sb = new StringBuilder();
       sb.append(" ").append(thisMsg.target.$getPath()).append(": (")
           .append(callerStacks[3].getFileName()).append(":")
           .append(callerStacks[3].getLineNumber()).append(")\r\n")

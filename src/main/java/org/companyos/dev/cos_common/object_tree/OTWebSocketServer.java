@@ -2,6 +2,7 @@ package org.companyos.dev.cos_common.object_tree;
 
 import java.net.InetSocketAddress;
 
+import org.companyos.dev.cos_common.CCThread;
 import org.eclipse.jetty.server.Server;
 
 public class OTWebSocketServer {
@@ -41,7 +42,7 @@ public class OTWebSocketServer {
   public boolean stop() {
     try {
       this.websocketServer.stop();
-      OT.Tools.trySleepMS(2000);
+      CCThread.trySleepMS(2000);
       return true;
     }
     catch (Exception e) {

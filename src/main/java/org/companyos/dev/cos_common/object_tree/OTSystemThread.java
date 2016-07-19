@@ -3,6 +3,8 @@ package org.companyos.dev.cos_common.object_tree;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import org.companyos.dev.cos_common.CCThread;
+
 final class OTSystemThread extends OTThread {
   final private LinkedList<OTMessageThread> timeoutThreads = new LinkedList<OTMessageThread>();
   private OTMessageThread[] msgThreadPool = new OTMessageThread[0];
@@ -121,7 +123,7 @@ final class OTSystemThread extends OTThread {
     this.shutDown();
 
     while (this.isTerminal == false) {
-      OT.Tools.trySleepMS(1000);
+    	CCThread.trySleepMS(1000);
     }
   }
 
@@ -131,7 +133,7 @@ final class OTSystemThread extends OTThread {
       this.sweepThreads(OT.Runtime.currentTimeMillis());
       this.clearTimeoutThread();
       if (!OT.Runtime.synchronizeTime()) {
-        OT.Tools.trySleepNanoSeconds(1000);
+        CCThread.trySleepNanoSeconds(1000);
       }
     }
     
@@ -148,7 +150,7 @@ final class OTSystemThread extends OTThread {
           + (now + OTConfig.TerminaWaitTimeMS - System.currentTimeMillis())
           / 1000 + "s");
       this.clearTimeoutThread();
-      OT.Tools.trySleepMS(1000);
+      CCThread.trySleepMS(1000);
     }
 
     now = System.currentTimeMillis();
@@ -159,7 +161,7 @@ final class OTSystemThread extends OTThread {
           / 1000 + "s");
       this.terminalTimeoutThread();
       this.clearTimeoutThread();
-      OT.Tools.trySleepMS(1000);
+      CCThread.trySleepMS(1000);
     }
 
     if (this.timeoutThreads.size() > 0) {

@@ -1,89 +1,10 @@
 package org.companyos.dev.cos_common.object_tree;
 
 import java.io.PrintStream;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OT {
-//  static public class Tools {
-//    public static final StringBuilder getStringBuilder() {
-//      // Single instance make multi thread bug
-//      return  new StringBuilder();
-//    }
-//
-//    public final static boolean trySleepMS(long timems) {
-//      try {
-//        TimeUnit.MILLISECONDS.sleep(timems);
-//        return true;
-//      }
-//      catch (InterruptedException ex) {
-//        return false;
-//      }
-//    }
-//
-//    public final static boolean trySleepNanoSeconds(long timens) {
-//      try {
-//        TimeUnit.NANOSECONDS.sleep(timens);
-//        return true;
-//      }
-//      catch (InterruptedException ex) {
-//        return false;
-//      }
-//    }
-//
-//    final static String buildCallArgsString(Object[] args) {
-//      if (args == null)
-//        return null;
-//
-//      StringBuilder sb = getStringBuilder();
-//      sb.append("(");
-//
-//      for (int i = 0; i < args.length; i++) {
-//        if (i != 0)
-//            sb.append(", ");
-//
-//        sb.append(args[i].getClass().getCanonicalName());
-//      }
-//
-//      return sb.toString();
-//    }
-//
-//    final static String buildMethodArgsString(Method method) {
-//      if (method == null)
-//        return null;
-//
-//      Parameter[] args = method.getParameters();
-//
-//      StringBuilder sb = getStringBuilder();
-//      sb.append("(");
-//
-//      for (int i = 0; i < args.length; i++) {
-//        if (i != 0)
-//            sb.append(", ");
-//
-//        sb.append(args[i].getType().getCanonicalName());
-//      }
-//
-//      return sb.toString();
-//    }
-//
-//    final public static java.sql.Date parseSqlDate(String v) {
-//      try {
-//        java.util.Date date = java.util.Date.from(Instant.parse(v));
-//        return new java.sql.Date(date.getTime());
-//      }
-//      catch (Exception e) {
-//        return null;
-//      }
-//    }
-//  }
-  
-
-  
   static public class Log {
     enum Level {
       Log, Warning, Error, SysLog, SysWarning, SysError, DebugLog, DebugWarning, DebugError

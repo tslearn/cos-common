@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class CCReflect {
-  final static String buildCallArgsString(Object[] args) {
+  public final static String buildCallArgsString(Object[] args) {
     if (args == null)
       return null;
 
@@ -21,7 +21,7 @@ public class CCReflect {
     return sb.toString();
   }
 
-  final static String buildMethodArgsString(Method method) {
+  public final static String buildMethodArgsString(Method method) {
     if (method == null)
       return null;
 
