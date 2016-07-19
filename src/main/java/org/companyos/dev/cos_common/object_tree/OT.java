@@ -90,7 +90,7 @@ public class OT {
     static final OTMessagePool msgPool = new OTMessagePool();
     
     public static boolean sendString(CCReturn<?> ret) {
-      OTSocketSlot p = User.getParam();
+      OTThreadParam p = User.getParam();
       if (p != null) {
         return p.sendString(ret);
       }
@@ -163,10 +163,10 @@ public class OT {
   }
   
   static public class User { 
-    private static ConcurrentHashMap<Long, OTSocketSlot> userSockHash = new  ConcurrentHashMap<Long, OTSocketSlot>();
+    private static ConcurrentHashMap<Long, OTThreadParam> userSockHash = new  ConcurrentHashMap<Long, OTThreadParam>();
 
     static synchronized public CCReturn<?> register(long id) {
-      OTSocketSlot p = User.getParam();
+      OTThreadParam p = User.getParam();
         
       if (p == null) {
         return CCReturn.error("注册用户失败，用户未初始化");
@@ -203,7 +203,7 @@ public class OT {
     }
     
     public static long getId() {
-      OTSocketSlot p = User.getParam();
+      OTThreadParam p = User.getParam();
       if (p != null) {
         return p.getUid();
       }
@@ -213,7 +213,7 @@ public class OT {
       }
     }
     
-    static OTSocketSlot getParam() {
+    static OTThreadParam getParam() {
       OTThread th = OTThread.currentThread();
       if (th != null) {
         return th.currentMsg.param;
@@ -223,11 +223,11 @@ public class OT {
       }
     }
     
-    public static OTSocketSlot getSocketSlotByUid(long uid) {
+    public static OTThreadParam getSocketSlotByUid(long uid) {
       return userSockHash.get(uid);
     }
     
-   static boolean setParam(OTSocketSlot param) {
+   static boolean setParam(OTThreadParam param) {
       OTThread th = OTThread.currentThread();
       if (th != null) {
         th.currentMsg.param = param;

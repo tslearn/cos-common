@@ -12,11 +12,11 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.json.JSONArray;
 @WebSocket
 public class OTWebSocketHandler extends WebSocketHandler {
-  private OTSocketSlot param;
+  private OTThreadParam param;
   
   @OnWebSocketConnect
   public void onConnect(Session session) {
-    this.param = new OTSocketSlot(session);
+    this.param = new OTThreadParam(session);
     System.out.println("connected");
   }
   

@@ -10,7 +10,7 @@ enum OTMessageStatus {
 }
 
 class OTMessageBase {
-  OTSocketSlot param;
+  OTThreadParam param;
   String msgName;
   OTNode target;
   OTNode sender;
@@ -19,7 +19,7 @@ class OTMessageBase {
 
   private static volatile OTMessageBase RootMessage = null;
 
-  public OTMessageBase(OTSocketSlot param, String msgName, OTNode target, OTNode sender,
+  public OTMessageBase(OTThreadParam param, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
     this.param = param;
     this.msgName = msgName;
@@ -52,7 +52,7 @@ final public class OTMessage extends OTMessageBase {
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
-  public OTMessage(OTSocketSlot param, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(OTThreadParam param, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
     super(param, msgName, target, sender, curDepth, debug);
     this.args = args;

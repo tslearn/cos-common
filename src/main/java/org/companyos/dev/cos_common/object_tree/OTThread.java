@@ -43,7 +43,7 @@ class OTThread extends Thread {
     ThreadLocal.remove();
   }
 
-  final OTMessageBase pushEvalMessage(OTSocketSlot param, String msgName, OTNode target,
+  final OTMessageBase pushEvalMessage(OTThreadParam param, String msgName, OTNode target,
       OTNode sender, int curDepth, String debug) {
     return this.currentMsg = this.msgStack.push(param, msgName, target, sender,
         curDepth, debug);

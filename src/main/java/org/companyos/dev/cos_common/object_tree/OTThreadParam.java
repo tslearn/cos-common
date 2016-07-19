@@ -11,11 +11,11 @@ package org.companyos.dev.cos_common.object_tree;
 
 import org.companyos.dev.cos_common.CCReturn;
 
-public class OTSocketSlot {
+public class OTThreadParam {
   private org.eclipse.jetty.websocket.api.Session session;
   private long uid = -1;
   
-  public OTSocketSlot(org.eclipse.jetty.websocket.api.Session session) {
+  public OTThreadParam(org.eclipse.jetty.websocket.api.Session session) {
     this.session = session;
   }
   

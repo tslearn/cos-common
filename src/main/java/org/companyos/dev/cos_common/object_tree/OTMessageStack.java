@@ -4,7 +4,7 @@ public class OTMessageStack {
   private int count = 0;
   private OTMessageBase[] msgPool = new OTMessageBase[0];
 
-  final OTMessageBase push(OTSocketSlot param, String msgName, OTNode target, OTNode sender,
+  final OTMessageBase push(OTThreadParam param, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.count == this.msgPool.length) {
