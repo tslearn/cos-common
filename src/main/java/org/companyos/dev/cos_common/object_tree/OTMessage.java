@@ -10,7 +10,7 @@ enum OTMessageStatus {
 }
 
 class OTMessageBase {
-  OTThreadParam param;
+	OTWebSocketHandler handler;
   String msgName;
   OTNode target;
   OTNode sender;
@@ -19,9 +19,9 @@ class OTMessageBase {
 
   private static volatile OTMessageBase RootMessage = null;
 
-  public OTMessageBase(OTThreadParam param, String msgName, OTNode target, OTNode sender,
+  public OTMessageBase(OTWebSocketHandler handler, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
-    this.param = param;
+    this.handler = handler;
     this.msgName = msgName;
     this.target = target;
     this.sender = sender;
@@ -52,9 +52,9 @@ final public class OTMessage extends OTMessageBase {
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
-  public OTMessage(OTThreadParam param, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(OTWebSocketHandler handler, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
-    super(param, msgName, target, sender, curDepth, debug);
+    super(handler, msgName, target, sender, curDepth, debug);
     this.args = args;
     this.status = OTMessageStatus.None;
   }
@@ -120,12 +120,12 @@ final public class OTMessage extends OTMessageBase {
         evalCallBack(currentThread, cb);
       }
       else {
-        currentThread = OTThread.initExternal();
+        currentThread = OTThread.startMessageService();
         try {
           evalCallBack(currentThread, cb);
         }
         finally {
-          OTThread.stopExternal();
+          OTThread.stopMessageService();
         }      
       }
     }

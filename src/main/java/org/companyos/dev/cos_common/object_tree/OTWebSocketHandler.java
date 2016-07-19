@@ -1,4 +1,5 @@
 package org.companyos.dev.cos_common.object_tree;
+import java.util.Map;
 
 import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
@@ -12,18 +13,49 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.json.JSONArray;
 @WebSocket
 public class OTWebSocketHandler extends WebSocketHandler {
-  private OTThreadParam param;
+  private Session session;
+  private long uid;
+  private Map<String, Object> params;
+  
+  public long getUid() {
+	  return this.uid;
+  }
+  
+  public boolean send(CCReturn<?> ret) {
+	    return send(">", ret);
+	  }
+  
+  public boolean send(String callback, CCReturn<?> ret) {
+	  return send(callback + ret.toJSON().toString());
+	  }
+  
+  public boolean send(String text) {
+	    try {      
+	      this.session.getRemote().sendString(text);
+	      return true;
+	    }
+	    catch (Exception e) {
+	      e.printStackTrace();
+	      return false;
+	    }
+	  }
+ 	  
+ public void close() {
+	    this.session.close();
+	  }
   
   @OnWebSocketConnect
   public void onConnect(Session session) {
-    this.param = new OTThreadParam(session);
-    System.out.println("connected");
+	  this.session = session;
+	  System.out.println("connected");
   }
   
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.User.unregister(this.param.getUid()); 
-    this.param = null; 
+    OT.User.unregister(this.uid); 
+    this.uid = 0L;
+    this.params = null;
+    this.session = null;
     System.out.println("disconnected");
   }
 
@@ -44,7 +76,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
       
       if (p1 <= 0 || p1 > p2 || p2 > p3) { 
     	  
-       this.param.sendString(
+       this.send(
     		   callback, 
     		   CCReturn.error("OT server receive data format error, received: " + message)
     		   ); 
@@ -58,7 +90,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
       OTNode tNode = OT.Runtime.getNodeByPath(target);
       
       if (tNode == null) {
-        this.param.sendString(
+        this.send(
         		callback, 
         		CCReturn.error("OT server eval error! target not found, target: " + target)
         		); 
@@ -78,34 +110,31 @@ public class OTWebSocketHandler extends WebSocketHandler {
       OTThread th = OTThread.currentThread();
 
       if (th == null) {
-        th = OTThread.initExternal();
+        th = OTThread.startMessageService();
         needFreeThread = true;
       }
       
-      OT.User.setParam(this.param);
+      OT.User.setHandler(this);
+      
       CCReturn<?> ret = OT.Message.evalMsg(tNode, msg, passArgs); 
       
-      if (this.param != null) {
-        this.param.sendString(callback , ret);
-      }
+      this.send(callback, ret);
 
       return;
     }
     catch (Exception e) {
-      if (this.param != null) {
-        this.param.sendString(
+        this.send(
         		callback, 
         		CCReturn.error("OT server eval exception").setE(e)
         		); 
-      }
 
       return;
     }
     finally {  
       if (needFreeThread) {
-        OTThread.stopExternal();
+        OTThread.stopMessageService();
       }
-      OT.User.setParam(null);
+      OT.User.setHandler(null);
     }
   }
 

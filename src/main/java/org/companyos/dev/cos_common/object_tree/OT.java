@@ -90,9 +90,9 @@ public class OT {
     static final OTMessagePool msgPool = new OTMessagePool();
     
     public static boolean sendString(CCReturn<?> ret) {
-      OTThreadParam p = User.getParam();
+      OTWebSocketHandler p = User.getCurrentHandler();
       if (p != null) {
-        return p.sendString(ret);
+        return p.send(ret);
       }
       else {
         return false;
@@ -105,12 +105,12 @@ public class OT {
         return msgPool.evalMessage(th, target, msgName, args);
       }
       else {
-        th = OTThread.initExternal();
+        th = OTThread.startMessageService();
         try {
           return msgPool.evalMessage(th, target, msgName, args);
         }
         finally {
-          OTThread.stopExternal();
+          OTThread.stopMessageService();
         }
       }
     }
@@ -125,12 +125,12 @@ public class OT {
         return msgPool.postMessage(th, 0, target, msgName, args);
       }
       else {
-        th = OTThread.initExternal();
+        th = OTThread.startMessageService();
         try {
           return msgPool.postMessage(th, 0, target, msgName, args);
         }
         finally {
-          OTThread.stopExternal();
+          OTThread.stopMessageService();
         }
       }
     }
@@ -146,12 +146,12 @@ public class OT {
         return msgPool.postMessage(th, delay, target, msgName, args);
       }
       else {
-        th = OTThread.initExternal();
+        th = OTThread.startMessageService();
         try {
           return msgPool.postMessage(th, delay, target, msgName, args);
         }
         finally {
-          OTThread.stopExternal();
+          OTThread.stopMessageService();
         }
       }
     }
@@ -163,28 +163,27 @@ public class OT {
   }
   
   static public class User { 
-    private static ConcurrentHashMap<Long, OTThreadParam> userSockHash = new  ConcurrentHashMap<Long, OTThreadParam>();
+    private static ConcurrentHashMap<Long, OTWebSocketHandler> userSockHash 
+    	= new  ConcurrentHashMap<Long, OTWebSocketHandler>();
 
-    static synchronized public CCReturn<?> register(long id) {
-      OTThreadParam p = User.getParam();
+    static synchronized public CCReturn<?> register(long uid) {
+      OTWebSocketHandler p = User.getCurrentHandler();
         
       if (p == null) {
         return CCReturn.error("注册用户失败，用户未初始化");
       }
       
-      if (id <= 0) {
+      if (uid <= 0) {
         return CCReturn.error("注册用户失败，用户ID错误");
       }
-      
-      if (userSockHash.containsKey(id)) {
-        userSockHash.get(id).send("@UserLoginOtherDevice>{}");
-        userSockHash.get(id).close();
-        userSockHash.remove(id);
+
+      if (userSockHash.contains(uid)) {
+    	  return CCReturn.error("USER_ALREADY_LOGIN");
       }
-      
-      p.setUid(id);  
-      userSockHash.put(id, p);
-      return CCReturn.success();
+      else {
+          userSockHash.put(uid, p);
+          return CCReturn.success();
+      }
     }
     
     static synchronized public CCReturn<?> lock(long id) { 
@@ -203,7 +202,7 @@ public class OT {
     }
     
     public static long getId() {
-      OTThreadParam p = User.getParam();
+      OTWebSocketHandler p = User.getCurrentHandler();
       if (p != null) {
         return p.getUid();
       }
@@ -213,24 +212,24 @@ public class OT {
       }
     }
     
-    static OTThreadParam getParam() {
+    static OTWebSocketHandler getCurrentHandler() {
       OTThread th = OTThread.currentThread();
       if (th != null) {
-        return th.currentMsg.param;
+        return th.currentMsg.handler;
       }
       else {
         return null;
       }
     }
     
-    public static OTThreadParam getSocketSlotByUid(long uid) {
+    public static OTWebSocketHandler getHandlerByUid(long uid) {
       return userSockHash.get(uid);
     }
     
-   static boolean setParam(OTThreadParam param) {
+   static boolean setHandler(OTWebSocketHandler handler) {
       OTThread th = OTThread.currentThread();
       if (th != null) {
-        th.currentMsg.param = param;
+        th.currentMsg.handler = handler;
         return true;
       }
       else {

@@ -31,26 +31,26 @@ class OTThread extends Thread {
       return ThreadLocal.get();
     }
   }
-
-  public static OTThread initExternal() {
+  
+  public static OTThread startMessageService() {
     OTThread thObj = new OTThread();
     thObj.pushMessage(OTMessageBase.getRootMessage());
     ThreadLocal.set(thObj);
     return thObj;
   }
 
-  public static void stopExternal() {
+  public static void stopMessageService() {  
     ThreadLocal.remove();
   }
 
-  final OTMessageBase pushEvalMessage(OTThreadParam param, String msgName, OTNode target,
+  final OTMessageBase pushEvalMessage(OTWebSocketHandler handler, String msgName, OTNode target,
       OTNode sender, int curDepth, String debug) {
-    return this.currentMsg = this.msgStack.push(param, msgName, target, sender,
+    return this.currentMsg = this.msgStack.push(handler, msgName, target, sender,
         curDepth, debug);
   }
 
   final synchronized void pushMessage(OTMessageBase msg) {
-    this.currentMsg = this.msgStack.push(msg.param, msg.msgName, msg.target, msg.sender,
+    this.currentMsg = this.msgStack.push(msg.handler, msg.msgName, msg.target, msg.sender,
         msg.curDepth, msg.debug);
   }
 

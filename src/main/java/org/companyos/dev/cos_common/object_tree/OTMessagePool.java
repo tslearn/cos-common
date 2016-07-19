@@ -63,7 +63,7 @@ final class OTMessagePool {
       debug = sb.toString();
     }
 
-    currentThread.pushEvalMessage(thisMsg.param, msgName, target, thisMsg.target,
+    currentThread.pushEvalMessage(thisMsg.handler, msgName, target, thisMsg.target,
         thisMsg.curDepth - 1, debug);
 
     try {
@@ -97,7 +97,7 @@ final class OTMessagePool {
       debug = sb.toString();
     }
 
-    return this.putMessage(new OTMessage(thisMsg.param, msgName, target, thisMsg.target,
+    return this.putMessage(new OTMessage(thisMsg.handler, msgName, target, thisMsg.target,
         thisMsg.curDepth - 1, debug, args), delayms);
   }
 }
