@@ -16,7 +16,7 @@ public class OTNode {
   private static final ConcurrentHashMap<Class<?>, HashMap<String, Method>> $methodCache = new ConcurrentHashMap<Class<?>, HashMap<String, Method>>();
   private OTNode $parent;
   private String $name;
-  private final ConcurrentHashMap<String, OTNode> $children = new ConcurrentHashMap<String, OTNode>();
+  private final OTLightMap $children = new OTLightMap();
 
   static boolean $isOTNodeName(String name) {
     return (name != null) && name.matches("^[_#$@A-Za-z0-9\u4E00-\u9FA5]+$");
@@ -62,7 +62,7 @@ public class OTNode {
   protected void beforeDetach() {
   }
 
-  protected void afterDetack() {
+  protected void afterDetach() {
   }
 
   final OTNode $getParent() {
@@ -136,7 +136,7 @@ public class OTNode {
     return this.$children.get(name);
   }
 
-  final OTNode $registerChild(String name, OTNode node) {
+  final boolean $registerChild(String name, OTNode node) {
     return this.$children.put(name, node);
   }
 
@@ -259,7 +259,7 @@ public class OTNode {
       node.$parent = this;
       node.beforeAttach();
 
-      if (this.$registerChild(name, node) == null) {
+      if (!this.$registerChild(name, node)) {
         return (OTNode) OT.Log
             .log(OT.Log.Level.Error, "node name : " + name + " has exist");
       }
@@ -291,7 +291,7 @@ public class OTNode {
       return false;
     }
 
-    this.afterDetack();
+    this.afterDetach();
 
     return true;
   }

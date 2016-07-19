@@ -67,7 +67,7 @@ public class OT {
           StackTraceElement callerStacks[] = Thread.currentThread()
               .getStackTrace();
           ps.println(info.type + " : " + path + " : " + outString);
-          for (int i = 1; i < callerStacks.length; i++)
+          for (int i = 2; i < callerStacks.length; i++)
             ps.println("  (" + callerStacks[i].getFileName() + ":"
                 + callerStacks[i].getLineNumber() + ")");
         }

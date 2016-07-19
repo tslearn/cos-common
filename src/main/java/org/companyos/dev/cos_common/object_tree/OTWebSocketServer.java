@@ -12,7 +12,7 @@ public class OTWebSocketServer {
 
   public OTWebSocketServer(String hostname, int port) {
     if (port <= 0 || port > 65535) {
-      OT.Log.logSysError("OTWebSocketServer port " + port + " is illegal!");
+      OT.Log.log(OT.Log.Level.SysError, "OTWebSocketServer port " + port + " is illegal!");
     }
     
     this.hostname = hostname;
@@ -33,7 +33,7 @@ public class OTWebSocketServer {
       return true;
     }
     catch (Exception e) {
-      OT.Log.logSysError("Websocket server start error!  " + e);
+      OT.Log.log(OT.Log.Level.SysError, "Websocket server start error!  " + e);
       this.websocketServer = null;
       return false;
     }
@@ -46,7 +46,7 @@ public class OTWebSocketServer {
       return true;
     }
     catch (Exception e) {
-      OT.Log.logSysError("Websocket server stop error! " + e);
+      OT.Log.log(OT.Log.Level.SysError, "Websocket server stop error! " + e);
       return false;
     }
   }

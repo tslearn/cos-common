@@ -1,4 +1,5 @@
 package org.companyos.dev.cos_common.object_tree;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.companyos.dev.cos_common.CCReturn;
@@ -19,6 +20,21 @@ public class OTWebSocketHandler extends WebSocketHandler {
   
   public long getUid() {
 	  return this.uid;
+  }
+  
+  public synchronized Object get(String key) {
+	  if (params == null) {
+		  return null;
+	  }
+	  
+	  return params.get(key);
+  }
+  
+  public synchronized Object put(String key, Object value) {
+	  if (this.params == null) {
+		this.params = new HashMap<String, Object>();
+	  }  
+	  return this.params.put(key, value);	  
   }
   
   public boolean send(CCReturn<?> ret) {
