@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Map;
 import java.util.HashMap;
+import java.time.Instant;
 
 /**
  * Created by tianshuo on 16/7/19.
@@ -20,6 +21,11 @@ public class CCDate {
 
   public CCDate() {
     this.date = new java.util.Date();
+  }
+
+
+  public CCDate(String parseString) {
+    this.date = java.util.Date.from(Instant.parse(parseString));
   }
 
   public CCDate(java.util.Date date) {
@@ -40,4 +46,13 @@ public class CCDate {
       return new SimpleDateFormat(fmt).format(this.date);
     }
   }
+
+  public java.util.Date getDate () {
+    return this.date;
+  }
+
+  public java.sql.Date getSqlDate() {
+    return new java.sql.Date(this.date.getTime());
+  }
+
 }
