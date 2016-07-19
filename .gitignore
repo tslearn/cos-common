@@ -3,8 +3,10 @@
 
 .idea/
 target/
+.settings/
 .project
 .classpath
+bin/
 *.swp
 *.iml
 .DS_Store
