@@ -1,11 +1,11 @@
 package org.companyos.dev.cos_common.object_tree;
 
-final class OTMessageThread extends OTThread {
+final class OTThreadMessage extends OTThread {
   private final OTMessageReadyPool readyList;
   private volatile long lastStartMS = Long.MAX_VALUE;
   boolean isTerminal = false;
 
-  OTMessageThread() {
+  OTThreadMessage() {
     this.goSystemPriority();
     this.readyList = OT.Message.msgPool.getReadyList();
   }

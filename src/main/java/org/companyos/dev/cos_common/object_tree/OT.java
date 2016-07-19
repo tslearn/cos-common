@@ -244,7 +244,7 @@ public class OT {
     static boolean isStart = false;
     static private AtomicLong currTimeMS;
     static OTNode rootNode;
-    static final private OTSystemThread sysThread = new OTSystemThread();
+    static final private OTThreadSystem sysThread = new OTThreadSystem();
     static private OTWebSocketServer websocketServer;
 
     synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {

@@ -5,12 +5,12 @@ import java.util.ListIterator;
 
 import org.companyos.dev.cos_common.CCThread;
 
-final class OTSystemThread extends OTThread {
-  final private LinkedList<OTMessageThread> timeoutThreads = new LinkedList<OTMessageThread>();
-  private OTMessageThread[] msgThreadPool = new OTMessageThread[0];
+final class OTThreadSystem extends OTThread {
+  final private LinkedList<OTThreadMessage> timeoutThreads = new LinkedList<OTThreadMessage>();
+  private OTThreadMessage[] msgThreadPool = new OTThreadMessage[0];
   private boolean isTerminal = false;
 
-  OTSystemThread() {
+  OTThreadSystem() {
     this.goSystemPriority();
   }
 
@@ -24,7 +24,7 @@ final class OTSystemThread extends OTThread {
 
   final synchronized void clearMsgThreadPool() {
     for (int i = 0; i < this.msgThreadPool.length; i++) {
-      OTMessageThread shutDownThread = this.msgThreadPool[i];
+      OTThreadMessage shutDownThread = this.msgThreadPool[i];
       shutDownThread.shutDown();
       this.timeoutThreads.add(shutDownThread);
       this.msgThreadPool[i] = null;
@@ -37,12 +37,12 @@ final class OTSystemThread extends OTThread {
 
     if (newLength > oldLength) {
       System.out.println("Msg Thread set to " + newLength);
-      OTMessageThread[] newPool = new OTMessageThread[newLength];
+      OTThreadMessage[] newPool = new OTThreadMessage[newLength];
       for (int i = 0; i < oldLength; i++) {
         newPool[i] = this.msgThreadPool[i];
       }
       for (int i = oldLength; i < newLength; i++) {
-        newPool[i] = new OTMessageThread();
+        newPool[i] = new OTThreadMessage();
         newPool[i].turnOn();
       }
       this.msgThreadPool = newPool;
@@ -50,12 +50,12 @@ final class OTSystemThread extends OTThread {
     }
     else if (newLength < oldLength) {
       System.out.println("Msg Thread set to " + newLength);
-      OTMessageThread[] newPool = new OTMessageThread[newLength];
+      OTThreadMessage[] newPool = new OTThreadMessage[newLength];
       for (int i = 0; i < newLength; i++) {
         newPool[i] = this.msgThreadPool[i];
       }
       for (int i = newLength; i < oldLength; i++) {
-        OTMessageThread shutDownThread = this.msgThreadPool[i];
+        OTThreadMessage shutDownThread = this.msgThreadPool[i];
         shutDownThread.shutDown();
         this.timeoutThreads.add(shutDownThread);
         this.msgThreadPool[i] = null;
@@ -73,7 +73,7 @@ final class OTSystemThread extends OTThread {
 
     if (OT.Runtime.isDebug) {
       for (int i = 0; i < this.msgThreadPool.length; i++) {
-        OTMessageThread msgThread = this.msgThreadPool[i];
+        OTThreadMessage msgThread = this.msgThreadPool[i];
         Thread.State state = msgThread.getState();
 
         if (!msgThread.isWorking()
@@ -86,13 +86,13 @@ final class OTSystemThread extends OTThread {
 
     if (canSweep) {
       for (int i = 0; i < this.msgThreadPool.length; i++) {
-        OTMessageThread msgThread = this.msgThreadPool[i];
+        OTThreadMessage msgThread = this.msgThreadPool[i];
         if (msgThread.isTimeout(nowMS)) {
           System.out.println("sweep");
-          OTMessageThread shutDownThread = this.msgThreadPool[i];
+          OTThreadMessage shutDownThread = this.msgThreadPool[i];
           shutDownThread.shutDown();
           timeoutThreads.add(shutDownThread);
-          this.msgThreadPool[i] = new OTMessageThread();
+          this.msgThreadPool[i] = new OTThreadMessage();
           this.msgThreadPool[i].turnOn();
         }
       }
@@ -100,9 +100,9 @@ final class OTSystemThread extends OTThread {
   }
 
   private void clearTimeoutThread() {
-    ListIterator<OTMessageThread> iter = this.timeoutThreads.listIterator();
+    ListIterator<OTThreadMessage> iter = this.timeoutThreads.listIterator();
     while (iter.hasNext()) {
-      OTMessageThread msgThread = iter.next();
+      OTThreadMessage msgThread = iter.next();
       if (msgThread.isTerminal) {
         iter.remove();
       }
@@ -110,9 +110,9 @@ final class OTSystemThread extends OTThread {
   }
 
   private void terminalTimeoutThread() {
-    ListIterator<OTMessageThread> iter = this.timeoutThreads.listIterator();
+    ListIterator<OTThreadMessage> iter = this.timeoutThreads.listIterator();
     while (iter.hasNext()) {
-      OTMessageThread msgThread = iter.next();
+      OTThreadMessage msgThread = iter.next();
       if (!msgThread.isTerminal && !msgThread.isWorking()) {
         msgThread.interrupt();
       }
@@ -165,9 +165,9 @@ final class OTSystemThread extends OTThread {
     }
 
     if (this.timeoutThreads.size() > 0) {
-      ListIterator<OTMessageThread> iter = this.timeoutThreads.listIterator();
+      ListIterator<OTThreadMessage> iter = this.timeoutThreads.listIterator();
       while (iter.hasNext()) {
-        OTMessageThread msgThread = iter.next();
+        OTThreadMessage msgThread = iter.next();
         if (!msgThread.isTerminal) {
           System.err.println(msgThread.currentMsg.target.getClass().getName()
               + ".on" + msgThread.currentMsg.msgName + " is Not Stopping !!!");
