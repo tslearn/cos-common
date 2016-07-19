@@ -3,6 +3,8 @@
 
 .idea/
 target/
+.project
+.classpath
 *.swp
 *.iml
 .DS_Store

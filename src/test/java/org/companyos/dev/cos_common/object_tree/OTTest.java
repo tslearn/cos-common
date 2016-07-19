@@ -24,8 +24,6 @@ public class OTTest extends OTNode {
   @Test
   public void tom_ot() throws Exception {
      OT.Message.postMsg("$.test", "Test", "tianshuo");
-
-
   }
 
 }
