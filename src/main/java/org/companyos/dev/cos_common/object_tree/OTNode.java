@@ -231,18 +231,18 @@ public class OTNode {
       }
       else {
         return (OTNode) OT.Log.log(
-            OT.Log.Level.Error, 
+            OT.Log.Level.Error,
             "Create object " + name + "error! class:" + klass.getName() + " constructor argument not match");
       }
     }
     catch (NoSuchMethodException e) {
       return (OTNode) OT.Log.log(
-          OT.Log.Level.Error, 
+          OT.Log.Level.Error,
           "Create object " + name + "error! class:" + klass.getName() + " constructor not found");
     }
     catch (Exception e) {
       return (OTNode) OT.Log.log(
-          OT.Log.Level.Error, 
+          OT.Log.Level.Error,
           "Create object " + name + "error, " + e);
     }
   }

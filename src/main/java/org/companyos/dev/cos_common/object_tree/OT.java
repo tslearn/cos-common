@@ -25,7 +25,7 @@ public class OT {
         // this.isError = isError;
       }
     }
-    
+
     private final static Info getInfo(Level level) {
       switch (level) {
       case Log:
@@ -51,10 +51,6 @@ public class OT {
       }
     }
 
-    public static void logSysError(String outString) {
-      Log.log(Level.SysError, outString);
-    }
-    
     public static Object log(Level logLevel, String outString) {
       OTMessageBase msg = OTThread.currentThread().currentMsg;
       OTNode target = (msg != null) ? msg.target : null;
@@ -62,7 +58,7 @@ public class OT {
       if (target != null) {
         path = target.$getPath();
       }
-      
+
       Info info = getInfo(logLevel);
 
       if (info != null) {
@@ -71,10 +67,9 @@ public class OT {
           StackTraceElement callerStacks[] = Thread.currentThread()
               .getStackTrace();
           ps.println(info.type + " : " + path + " : " + outString);
-          for (int i = 2; i < callerStacks.length; i++)
-            ps.print("  (" + callerStacks[i].getFileName() + ":"
+          for (int i = 1; i < callerStacks.length; i++)
+            ps.println("  (" + callerStacks[i].getFileName() + ":"
                 + callerStacks[i].getLineNumber() + ")");
-          ps.println("");
         }
         if (msg != null) {
           msg.log(ps);
