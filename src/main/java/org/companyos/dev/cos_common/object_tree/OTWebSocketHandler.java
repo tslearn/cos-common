@@ -1,5 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -42,7 +43,11 @@ public class OTWebSocketHandler extends WebSocketHandler {
       int p3 = message.indexOf(">");
       
       if (p1 <= 0 || p1 > p2 || p2 > p3) { 
-       this.param.sendString(callback, OTReturn.getSysError().setM("OT server receive data format error, received: " + message)); 
+    	  
+       this.param.sendString(
+    		   callback, 
+    		   CCReturn.error("OT server receive data format error, received: " + message)
+    		   ); 
        return;
       }
       
@@ -53,7 +58,10 @@ public class OTWebSocketHandler extends WebSocketHandler {
       OTNode tNode = OT.Runtime.getNodeByPath(target);
       
       if (tNode == null) {
-        this.param.sendString(callback, OTReturn.getSysError().setM("OT server eval error! target not found, target: " + target)); 
+        this.param.sendString(
+        		callback, 
+        		CCReturn.error("OT server eval error! target not found, target: " + target)
+        		); 
         return;
       }
       
@@ -75,7 +83,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
       }
       
       OT.User.setParam(this.param);
-      OTReturn ret = OT.Message.evalMsg(tNode, msg, passArgs); 
+      CCReturn<?> ret = OT.Message.evalMsg(tNode, msg, passArgs); 
       
       if (this.param != null) {
         this.param.sendString(callback , ret);
@@ -85,7 +93,10 @@ public class OTWebSocketHandler extends WebSocketHandler {
     }
     catch (Exception e) {
       if (this.param != null) {
-        this.param.sendString(callback, OTReturn.getSysError().setM("OT server eval exception").setE(e)); 
+        this.param.sendString(
+        		callback, 
+        		CCReturn.error("OT server eval exception").setE(e)
+        		); 
       }
 
       return;

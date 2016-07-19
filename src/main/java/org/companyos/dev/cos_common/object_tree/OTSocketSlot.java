@@ -9,6 +9,8 @@
 
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCReturn;
+
 public class OTSocketSlot {
   private org.eclipse.jetty.websocket.api.Session session;
   private long uid = -1;
@@ -26,13 +28,14 @@ public class OTSocketSlot {
   }
 
  
-  public boolean sendString(OTReturn ret) {
+  public boolean sendString(CCReturn<?> ret) {
     return sendString(">", ret);
   }
   
-  public boolean sendString(String callback, OTReturn ret) {
+  public boolean sendString(String callback, CCReturn<?> ret) {
     try {      
-      this.session.getRemote().sendString(callback + ret.toJSONObject().toString());
+      String s = ret.toJSON().toString();
+      this.session.getRemote().sendString(callback + s);
       return true;
     }
     catch (Exception e) {

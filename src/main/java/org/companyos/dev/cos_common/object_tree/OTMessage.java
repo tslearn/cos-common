@@ -3,6 +3,8 @@ package org.companyos.dev.cos_common.object_tree;
 import java.io.PrintStream;
 import java.util.LinkedList;
 
+import org.companyos.dev.cos_common.CCReturn;
+
 enum OTMessageStatus {
   None, Success, Error
 }
@@ -57,10 +59,10 @@ final public class OTMessage extends OTMessageBase {
     this.status = OTMessageStatus.None;
   }
 
-  OTReturn $eval(OTThread currentThread) {
+  CCReturn<?> $eval(OTThread currentThread) {
     currentThread.pushMessage(this);
     try {
-      OTReturn ret = this.target.$eval(currentThread, this.args);
+      CCReturn<?> ret = this.target.$eval(currentThread, this.args);
       setFinish(currentThread);
       return ret;
     }

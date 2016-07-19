@@ -1,5 +1,7 @@
 package org.companyos.dev.cos_common;
 
+import org.json.JSONObject;
+
 /**
  *
  * Created by tianshuo on 16/7/13.
@@ -33,6 +35,9 @@ public class CCReturn<T> {
     }
 
     public CCReturn<T> setM(String message) {
+    	if (!this.isOk()) {
+    		System.out.println("Error Log: " + message);
+    	}
         this.message = message;
         return this;
     }
@@ -71,4 +76,19 @@ public class CCReturn<T> {
     public static <E> CCReturn<E> error(String message) {
         return new CCReturn<E>(false).setM(message);
     }
+    
+    public JSONObject toJSON() {
+        return new JSONObject()
+            .put("ok", this.isOk())
+            .put("m", this.getM())
+            .put("v", this.getR().toString())
+            .put("e", this.getE())
+            .put("d", this.getD());
+    }
+      
+//    private static String getDebug() {
+//        int upMethodDepth = 3;
+//        StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
+//        return callerStacks[upMethodDepth].toString();
+// 	}
 }

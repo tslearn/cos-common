@@ -13,7 +13,8 @@ public class CCDate {
   private java.util.Date date;
 
   private static Map<String, DateFormat> FormatCache =  new HashMap<String, DateFormat>() {
-    {
+	private static final long serialVersionUID = 1L;
+	{
       put("yyyyMMdd", new SimpleDateFormat("yyyyMMdd"));
       put("B", null);
     }

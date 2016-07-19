@@ -4,6 +4,8 @@ import java.io.PrintStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.companyos.dev.cos_common.CCReturn;
+
 public class OT {
   static public class Log {
     enum Level {
@@ -87,7 +89,7 @@ public class OT {
   static public class Message {
     static final OTMessagePool msgPool = new OTMessagePool();
     
-    public static boolean sendString(OTReturn ret) {
+    public static boolean sendString(CCReturn<?> ret) {
       OTSocketSlot p = User.getParam();
       if (p != null) {
         return p.sendString(ret);
@@ -97,7 +99,7 @@ public class OT {
       }
     }
   
-    public static OTReturn evalMsg(OTNode target, String msgName, Object... args) {
+    public static CCReturn<?> evalMsg(OTNode target, String msgName, Object... args) {
       OTThread th = OTThread.currentThread();
       if (th != null) {
         return msgPool.evalMessage(th, target, msgName, args);
@@ -113,7 +115,7 @@ public class OT {
       }
     }
 
-    public static OTReturn evalMsg(String target, String msgName, Object... args) {
+    public static CCReturn<?> evalMsg(String target, String msgName, Object... args) {
       return Message.evalMsg(Runtime.getNodeByPath(target), msgName, args);
     }
 
@@ -163,15 +165,15 @@ public class OT {
   static public class User { 
     private static ConcurrentHashMap<Long, OTSocketSlot> userSockHash = new  ConcurrentHashMap<Long, OTSocketSlot>();
 
-    static synchronized public OTReturn register(long id) {
+    static synchronized public CCReturn<?> register(long id) {
       OTSocketSlot p = User.getParam();
         
       if (p == null) {
-        return OTReturn.getSysError().setM("注册用户失败，用户未初始化");
+        return CCReturn.error("注册用户失败，用户未初始化");
       }
       
       if (id <= 0) {
-        return OTReturn.getSysError().setM("注册用户失败，用户ID错误");
+        return CCReturn.error("注册用户失败，用户ID错误");
       }
       
       if (userSockHash.containsKey(id)) {
@@ -182,22 +184,22 @@ public class OT {
       
       p.setUid(id);  
       userSockHash.put(id, p);
-      return OTReturn.getSuccess();
+      return CCReturn.success();
     }
     
-    static synchronized public OTReturn lock(long id) { 
+    static synchronized public CCReturn<?> lock(long id) { 
       if (userSockHash.get(id) != null) {
         userSockHash.get(id).send("@UserLocked>{}");
         userSockHash.get(id).close();
         userSockHash.remove(id);
       }
 
-      return OTReturn.getSuccess();
+      return CCReturn.success();
     }
     
-    static synchronized public OTReturn unregister(long id) {      
+    static synchronized public CCReturn<?> unregister(long id) {      
       userSockHash.remove(id) ;
-      return OTReturn.getSuccess();
+      return CCReturn.success();
     }
     
     public static long getId() {

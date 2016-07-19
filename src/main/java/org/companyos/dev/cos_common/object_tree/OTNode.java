@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.companyos.dev.cos_common.CCReflect;
+import org.companyos.dev.cos_common.CCReturn;
 
 
 public class OTNode {
@@ -88,7 +89,7 @@ public class OTNode {
   }
   
   
-  final OTReturn $eval(OTThread currentThread, Object[] args) {
+  final CCReturn<?> $eval(OTThread currentThread, Object[] args) {
     Method method = null;
     try {
       method = $methodCache.get(this.getClass()).get(
@@ -99,25 +100,23 @@ public class OTNode {
             + currentThread.currentMsg.msgName + " Syntax not found ";
         OT.Log.log(OT.Log.Level.Error, errorMsg);
         currentThread.lastEvalSuccess = false;
-        return OTReturn.getSysError().setM(errorMsg);
+        return CCReturn.error(errorMsg);
       }
       
       currentThread.lastEvalSuccess = true;
-      return (OTReturn)method.invoke(this, args);
+      return (CCReturn<?>)method.invoke(this, args);
     }
     catch (InvocationTargetException e) {
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"
           + currentThread.currentMsg.msgName + " Excute Error, Please catch exception in the Syntax";
-      OT.Log.log(OT.Log.Level.Error, errorMsg);
-      currentThread.lastEvalSuccess = false;
-      return OTReturn.getSysError().setM(errorMsg).setE(e);
+      currentThread.lastEvalSuccess = false;    
+      return CCReturn.error(errorMsg).setE(e);
     }
     catch (IllegalAccessException e) {
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"
           + currentThread.currentMsg.msgName + " Access Deny ";
-      OT.Log.log(OT.Log.Level.Error,errorMsg);
       currentThread.lastEvalSuccess = false;
-      return OTReturn.getSysError().setM(errorMsg).setE(e);
+      return CCReturn.error(errorMsg).setE(e);
     }
     catch (IllegalArgumentException e) {    
       String calledArgs = CCReflect.buildCallArgsString(args);
@@ -128,9 +127,8 @@ public class OTNode {
           + "\nCalledArgs: " + calledArgs
           + "\nMethodArgs: " + methodArgs;      
       
-      OT.Log.log(OT.Log.Level.Error, errorMsg);
-      currentThread.lastEvalSuccess = false;
-      return OTReturn.getSysError().setM(errorMsg).setE(e);
+      currentThread.lastEvalSuccess = false;      
+      return CCReturn.error(errorMsg).setE(e);
     }
   }
 

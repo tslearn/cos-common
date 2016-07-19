@@ -1,5 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCReturn;
 
 final class OTMessagePool {
   final private static int ReadyMsgMaxSize = 30000;
@@ -39,20 +40,16 @@ final class OTMessagePool {
     }
   }
 
-  final OTReturn evalMessage(OTThread currentThread, OTNode target,
+  final CCReturn<?> evalMessage(OTThread currentThread, OTNode target,
       String msgName, Object[] args) {
     OTMessageBase thisMsg = currentThread.currentMsg;
 
     if (thisMsg.curDepth <= 0) {
-      String errorMsg = "message depth overflow";
-      OT.Log.log(OT.Log.Level.Error, errorMsg);
-      return OTReturn.getSysError().setM(errorMsg);
+      return CCReturn.error("message depth overflow");
     }
     
     if (target == null) {
-      String errorMsg = "target not found";
-      OT.Log.log(OT.Log.Level.Error, errorMsg);
-      return OTReturn.getSysError().setM(errorMsg);
+      return CCReturn.error("target not found");
     }
 
     String debug = null;
@@ -74,7 +71,7 @@ final class OTMessagePool {
     }
     catch (Exception e) {
       OT.Log.log(OT.Log.Level.Error, e.toString());
-      return OTReturn.getSysError().setE(e);
+      return CCReturn.error().setE(e);
     }
     finally {
       currentThread.popMessage();
