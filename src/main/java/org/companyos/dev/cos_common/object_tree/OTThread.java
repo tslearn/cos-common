@@ -15,7 +15,7 @@ class OTThread extends Thread {
     this.setPriority(Thread.MAX_PRIORITY);
   }
 
-  final void goHighPriority() {
+  final void goNormalPriority() {
     this.setPriority(Thread.NORM_PRIORITY);
   }
 
