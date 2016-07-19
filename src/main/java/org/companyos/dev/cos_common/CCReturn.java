@@ -9,6 +9,7 @@ public class CCReturn<T> {
     private String message;
     private String debug;
     private T ret;
+    private Exception exception;
 
     private CCReturn(boolean ok) {
         this.ok = ok;
@@ -39,7 +40,17 @@ public class CCReturn<T> {
     public String getD() {
         return this.debug;
     }
-
+    
+    public Exception getE() {
+        return this.exception;
+	}
+    
+    public CCReturn<T>  setE(Exception exception) {
+    	exception.printStackTrace();
+        this.exception = exception;
+        return this;
+    }
+      
     public CCReturn<T> setD(String debug) {
         this.debug = debug;
         return this;
