@@ -9,87 +9,78 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OT {
-  static class Config {
-    static public final String STRootName = "$";
-    static public final int DefaultMessageMaxDepth = 300;
-    static public final int FirstBoostMS = 100;
-    static public final int TerminaWaitTimeMS = 8000;
-    static public final int ForceQuitWaitTimeMS = 7000;     
-  }
-  
-  static public class Tools {
-    
-    public static final StringBuilder getStringBuilder() {
-      // Single instance make multi thread bug
-      return  new StringBuilder();
-    }
-    
-    public final static boolean trySleepMS(long timems) {
-      try {
-        TimeUnit.MILLISECONDS.sleep(timems);
-        return true;
-      }
-      catch (InterruptedException ex) {
-        return false;
-      }
-    }
-
-    public final static boolean trySleepNanoSeconds(long timens) {
-      try {
-        TimeUnit.NANOSECONDS.sleep(timens);
-        return true;
-      }
-      catch (InterruptedException ex) {
-        return false;
-      }
-    }
-    
-    final static String buildCallArgsString(Object[] args) {
-      if (args == null)
-        return null;
-      
-      StringBuilder sb = getStringBuilder();
-      sb.append("(");
-      
-      for (int i = 0; i < args.length; i++) {
-        if (i != 0)
-            sb.append(", ");
-        
-        sb.append(args[i].getClass().getCanonicalName());
-      }
-
-      return sb.toString();
-    }
-    
-    final static String buildMethodArgsString(Method method) {
-      if (method == null)
-        return null;
-      
-      Parameter[] args = method.getParameters();
-      
-      StringBuilder sb = getStringBuilder();
-      sb.append("(");
-      
-      for (int i = 0; i < args.length; i++) {
-        if (i != 0)
-            sb.append(", ");
-        
-        sb.append(args[i].getType().getCanonicalName());
-      }
-
-      return sb.toString();
-    }  
-    
-    final public static java.sql.Date parseSqlDate(String v) {
-      try {
-        java.util.Date date = java.util.Date.from(Instant.parse(v));
-        return new java.sql.Date(date.getTime());
-      }
-      catch (Exception e) {
-        return null;
-      }
-    }
-  }
+//  static public class Tools {
+//    public static final StringBuilder getStringBuilder() {
+//      // Single instance make multi thread bug
+//      return  new StringBuilder();
+//    }
+//
+//    public final static boolean trySleepMS(long timems) {
+//      try {
+//        TimeUnit.MILLISECONDS.sleep(timems);
+//        return true;
+//      }
+//      catch (InterruptedException ex) {
+//        return false;
+//      }
+//    }
+//
+//    public final static boolean trySleepNanoSeconds(long timens) {
+//      try {
+//        TimeUnit.NANOSECONDS.sleep(timens);
+//        return true;
+//      }
+//      catch (InterruptedException ex) {
+//        return false;
+//      }
+//    }
+//
+//    final static String buildCallArgsString(Object[] args) {
+//      if (args == null)
+//        return null;
+//
+//      StringBuilder sb = getStringBuilder();
+//      sb.append("(");
+//
+//      for (int i = 0; i < args.length; i++) {
+//        if (i != 0)
+//            sb.append(", ");
+//
+//        sb.append(args[i].getClass().getCanonicalName());
+//      }
+//
+//      return sb.toString();
+//    }
+//
+//    final static String buildMethodArgsString(Method method) {
+//      if (method == null)
+//        return null;
+//
+//      Parameter[] args = method.getParameters();
+//
+//      StringBuilder sb = getStringBuilder();
+//      sb.append("(");
+//
+//      for (int i = 0; i < args.length; i++) {
+//        if (i != 0)
+//            sb.append(", ");
+//
+//        sb.append(args[i].getType().getCanonicalName());
+//      }
+//
+//      return sb.toString();
+//    }
+//
+//    final public static java.sql.Date parseSqlDate(String v) {
+//      try {
+//        java.util.Date date = java.util.Date.from(Instant.parse(v));
+//        return new java.sql.Date(date.getTime());
+//      }
+//      catch (Exception e) {
+//        return null;
+//      }
+//    }
+//  }
   
 
   
