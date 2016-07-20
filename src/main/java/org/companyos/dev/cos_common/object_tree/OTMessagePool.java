@@ -61,7 +61,7 @@ final class OTMessagePool {
       return target.$eval(currentThread, args);
     }
     catch (Exception e) {
-      OT.Log.log(OT.Log.Level.Error, e.toString());
+      OT.ot_error(e.toString());
       return CCReturn.error().setE(e);
     }
     finally {
@@ -77,20 +77,23 @@ final class OTMessagePool {
 
       if (OTConfig.RootMessageName.equals(thisMsg.msgName)) {
         sb.append("  @ ")
-            .append("Root Message").append("  ");
+            .append("Root Message").append("  ")
+            .append(callerStacks[stackDepth].getClassName()).append(".")
+            .append(callerStacks[stackDepth].getMethodName()).append(": (")
+            .append(callerStacks[stackDepth].getFileName()).append(":")
+            .append(callerStacks[stackDepth].getLineNumber()).append(")");
       }
       else {
         sb.append("  @ ")
             .append(thisMsg.target.$getPath()).append(".")
             .append(thisMsg.msgName)
-            .append(CCReflect.buildCallArgsString(args)).append("  ");
+            .append(CCReflect.buildCallArgsString(args)).append("  ")
+            .append(callerStacks[stackDepth].getClassName()).append(".")
+            .append(callerStacks[stackDepth].getMethodName()).append(": (")
+            .append(callerStacks[stackDepth].getFileName()).append(":")
+            .append(callerStacks[stackDepth].getLineNumber()).append(")\r\n")
+            .append(thisMsg.debug);
       }
-
-      sb.append(callerStacks[stackDepth].getClassName()).append(".")
-          .append(callerStacks[stackDepth].getMethodName()).append(": (")
-          .append(callerStacks[stackDepth].getFileName()).append(":")
-          .append(callerStacks[stackDepth].getLineNumber()).append(")\r\n")
-          .append(thisMsg.debug);
 
       return sb.toString();
     }
@@ -104,9 +107,9 @@ final class OTMessagePool {
     OTMessageBase thisMsg = currentThread.currentMsg;
 
     if (thisMsg.curDepth <= 0) {
-      return (OTMessage) OT.Log.log(OT.Log.Level.Error, "message depth overflow");
+      OT.ot_error("message depth overflow");
+      return null;
     }
-
 
     return this.putMessage(new OTMessage(thisMsg.handler, msgName, target, thisMsg.target,
         thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args), args), delayms);

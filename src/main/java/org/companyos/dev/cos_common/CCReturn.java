@@ -35,9 +35,6 @@ public class CCReturn<T> {
     }
 
     public CCReturn<T> setM(String message) {
-    	if (!this.isOk()) {
-    		System.out.println("Error Log: " + message);
-    	}
         this.message = message;
         return this;
     }

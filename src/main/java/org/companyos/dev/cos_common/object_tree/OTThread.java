@@ -18,7 +18,7 @@ class OTThread extends Thread {
   }
 
   public static void eval(IOTThreadEval eval) throws InterruptedException {
-    Thread th = new Thread(() -> {
+    new Thread(() -> {
       startMessageService();
       eval.visit();
       stopMessageService();

@@ -1,6 +1,5 @@
 package org.companyos.dev.cos_common.object_tree;
 
-import java.io.PrintStream;
 import java.util.LinkedList;
 
 import org.companyos.dev.cos_common.CCReturn;
@@ -37,11 +36,11 @@ class OTMessageBase {
     return RootMessage;
   }
 
-  final synchronized void log(PrintStream ps) {
+  final String getDebug() {
     if (this.debug != null)
-      ps.println(this.debug);
+      return this.debug;
     else
-      ps.println("OTRuntime debug mode is disabled !!!");
+      return "OTRuntime debug mode is disabled !!!";
   }
 }
 

@@ -1,89 +1,72 @@
 package org.companyos.dev.cos_common.object_tree;
 
-import java.io.PrintStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.companyos.dev.cos_common.CCReturn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OT {
-  static public class Log {
-    enum Level {
-      Log, Warning, Error, SysLog, SysWarning, SysError, DebugLog, DebugWarning, DebugError
-    }
-    static class Info {
-      final String type;
-      final boolean isLog;
+  private static final Logger log
+      = LoggerFactory.getLogger(OT.class);
 
-      // final boolean isWarning;
-      // final boolean isError;
+  public final static void trace(String msg) {
+    log.trace(toOTMessage(msg));
+  }
 
-      public Info(String type, boolean isLog, boolean isWarning, boolean isError) {
-        this.type = type;
-        this.isLog = isLog;
-        // this.isWarning = isWarning;
-        // this.isError = isError;
-      }
-    }
+  public final static void debug(String msg) {
+    log.debug(toOTMessage(msg));
+  }
 
-    private final static Info getInfo(Level level) {
-      switch (level) {
-      case Log:
-        return new Info("Log", true, false, false);
-      case Warning:
-        return new Info("Warning", false, true, false);
-      case Error:
-        return new Info("Error", false, false, true);
-      case DebugLog:
-        return new Info("DebugLog", true, false, false);
-      case DebugWarning:
-        return new Info("DebugWarning", false, true, false);
-      case DebugError:
-        return new Info("DebugError", false, false, true);
-      case SysLog:
-        return new Info("SysLog", true, false, false);
-      case SysWarning:
-        return new Info("SysWarning", false, true, false);
-      case SysError:
-        return new Info("SysError", false, false, true);
-      default:
-        return null;
-      }
+  public final static void info(String msg) {
+    log.info(toOTMessage(msg));
+  }
+
+  public final static void warn(String msg) {
+    log.warn(toOTMessage(msg));
+  }
+
+  public final static void error(String msg) {
+    log.error(toOTMessage(msg));
+  }
+
+  final static void fatal(String msg) {
+    log.error(toOTMessage(msg));
+  }
+
+  final static void ot_error(String msg) {
+    log.error(toOTMessage(msg));
+  }
+
+
+  private static String toOTMessage(String outString) {
+    OTMessageBase msg = OTThread.currentThread().currentMsg;
+    OTNode target = (msg != null) ? msg.target : null;
+    String path = "System";
+    if (target != null) {
+      path = target.$getPath();
     }
 
-    public synchronized static Object log(Level logLevel, String outString) {
-      OTMessageBase msg = OTThread.currentThread().currentMsg;
-      OTNode target = (msg != null) ? msg.target : null;
-      String path = "System";
-      if (target != null) {
-        path = target.$getPath();
-      }
+    StringBuilder sb = new StringBuilder();
+    sb.append("\r\n  " + path + ": " + outString + "\r\n");
 
-      Info info = getInfo(logLevel);
+    StackTraceElement callerStacks[] = Thread.currentThread()
+        .getStackTrace();
 
-      if (info != null) {
-        StringBuilder sb = new StringBuilder();
-        PrintStream ps = info.isLog ? System.out : System.err;
-
-        StackTraceElement callerStacks[] = Thread.currentThread()
-            .getStackTrace();
-        sb.append(path + " " + info.type  + ":\r\n  " + outString + "\r\n");
-        for (int i = 2; i < callerStacks.length; i++) {
-          sb.append(i == 2 ? "  @ " : "    #  ")
-              .append(callerStacks[i].getClassName()).append(".")
-              .append(callerStacks[i].getMethodName()).append(": (")
-              .append(callerStacks[i].getFileName()).append(":")
-              .append(callerStacks[i].getLineNumber()).append(")\r\n");
-        }
-
-        ps.print(sb.toString());
-
-        if (msg != null) {
-          msg.log(ps);
-        }
-      }
-      return null;
+    for (int i = 1; i < callerStacks.length; i++) {
+      sb.append(i == 1 ? "  @ " : "    #  ")
+          .append(callerStacks[i].getClassName()).append(".")
+          .append(callerStacks[i].getMethodName()).append(": (")
+          .append(callerStacks[i].getFileName()).append(":")
+          .append(callerStacks[i].getLineNumber()).append(")\r\n");
     }
+
+
+    if (msg != null) {
+      sb.append(msg.getDebug());
+    }
+    return sb.toString();
   }
 
   static public class Message {
@@ -207,7 +190,7 @@ public class OT {
         return p.getUid();
       }
       else {
-        Log.log(Log.Level.Error, "User param not initilized");
+        OT.ot_error("User param not initilized");
         return -1;
       }
     }

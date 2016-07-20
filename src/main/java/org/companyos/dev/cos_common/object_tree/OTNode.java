@@ -41,9 +41,7 @@ public class OTNode {
           String methodName = md.getName().substring(2);
           if ($isOTMessageName(methodName)
               && map.putIfAbsent(methodName, md) != null) {
-            OT.Log.log(
-                OT.Log.Level.Error,
-                "Import class " + klass.getName() + " Error !!! " + klassItr.getName() + "." + md.getName() + " has already been defined!");
+        	  OT.ot_error("Import class " + klass.getName() + " Error !!! " + klassItr.getName() + "." + md.getName() + " has already been defined!");
           }
         }
       }
@@ -98,7 +96,7 @@ public class OTNode {
       if (method == null) {
         String errorMsg =   currentThread.currentMsg.target.$getPath() + ".on"
             + currentThread.currentMsg.msgName + " Syntax not found ";
-        OT.Log.log(OT.Log.Level.Error, errorMsg);
+        OT.ot_error(errorMsg);
         currentThread.lastEvalSuccess = false;
         return CCReturn.error(errorMsg);
       }
@@ -187,7 +185,8 @@ public class OTNode {
       Object... args) {
 
     if (!OTNode.$isOTNodeName(name)) {
-      return (OTNode) OT.Log.log(OT.Log.Level.Error, "Create object " + name + " error, object name is illegel");
+    	OT.ot_error("Create object " + name + " error, object name is illegel");
+    	return null;
     }
 
     try {
@@ -230,20 +229,17 @@ public class OTNode {
         return node;
       }
       else {
-        return (OTNode) OT.Log.log(
-            OT.Log.Level.Error,
-            "Create object " + name + "error! class:" + klass.getName() + " constructor argument not match");
+    	OT.ot_error("Create object " + name + "error! class:" + klass.getName() + " constructor argument not match");
+        return null;
       }
     }
     catch (NoSuchMethodException e) {
-      return (OTNode) OT.Log.log(
-          OT.Log.Level.Error,
-          "Create object " + name + "error! class:" + klass.getName() + " constructor not found");
+    	OT.ot_error("Create object " + name + "error! class:" + klass.getName() + " constructor not found");
+    	return null;
     }
     catch (Exception e) {
-      return (OTNode) OT.Log.log(
-          OT.Log.Level.Error,
-          "Create object " + name + "error, " + e);
+    	OT.ot_error("Create object " + name + "error, " + e);
+    	return null;
     }
   }
 
@@ -260,8 +256,8 @@ public class OTNode {
       node.beforeAttach();
 
       if (!this.$registerChild(name, node)) {
-        return (OTNode) OT.Log
-            .log(OT.Log.Level.Error, "node name : " + name + " has exist");
+    	OT.ot_error("node name : " + name + " has exist");
+        return null;
       }
 
       node.afterAttach();
@@ -275,19 +271,19 @@ public class OTNode {
 
   final boolean $remove() {
     if (this.$parent == null) {
-      OT.Log.log(OT.Log.Level.SysError, "System error");
+      OT.ot_error("System error");
       return false;
     }
 
     this.beforeDetach();
 
     if (!this.$removeChildren()) {
-      OT.Log.log(OT.Log.Level.SysError, "System error");
+      OT.ot_error("System error");
       return false;
     }
 
     if (!this.$parent.$unregisterChild(this)) {
-      OT.Log.log(OT.Log.Level.SysError, "System error");
+      OT.ot_error("System error");
       return false;
     }
 
