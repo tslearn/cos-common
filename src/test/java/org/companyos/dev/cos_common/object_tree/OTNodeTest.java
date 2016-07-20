@@ -34,7 +34,8 @@ public class OTNodeTest extends OTNode {
   }
 
   public void onTest2(String name) {
-    System.out.println("Hello " + name);
+    OT.Log.log(OT.Log.Level.Log, "Hello " + name);
+
     OT.Log.log(OT.Log.Level.Log, "Hello " + name);
   }
 
