@@ -21,11 +21,16 @@ public class OTTest extends OTNode {
 
   @Test
   public void tom_ot1() throws Exception {
-    OT.evalMsg("$.test", "Test", "tianshuo");
+    OT.evalMsg("$.test", "Test", "tian-001");
   }
 
-//  @Test
-//  public void tom_ot2() throws Exception {
-//    OT.Message.evalMsg("$.test", "Test", "tianshuo");
-//  }
+  @Test
+  public void tom_ot2() throws Exception {
+    OT.evalMsg("$.test", "Test", "tian-002");
+  }
+
+  @Test
+  public void tom_ot3() throws Exception {
+    OT.evalMsg("$.test", "Test", "tian-003");
+  }
 }

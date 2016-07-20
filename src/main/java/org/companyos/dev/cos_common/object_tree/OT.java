@@ -18,10 +18,9 @@ public class OT {
   static private OTNode rootNode;
   static private OTThreadSystem sysThread;
   static private OTWebSocketServer websocketServer;
-  static final OTMessagePool msgPool = new OTMessagePool();
+  static OTMessagePool msgPool;
 
-  private static ConcurrentHashMap<String, OTWebSocketHandler> wsHandlerHash
-      = new ConcurrentHashMap<String, OTWebSocketHandler> ();
+  private static ConcurrentHashMap<String, OTWebSocketHandler> wsHandlerHash;
 
 
 
@@ -204,12 +203,13 @@ public class OT {
     boolean isStartMessageService  = false;
     try {
       if (!OT.isStart) {
+        OT.msgPool = new OTMessagePool();
         OTThread.startMessageService();
         isStartMessageService = true;
         OT.isDebug = isDebug;
         OT.websocketServer = new OTWebSocketServer(host, port);
         OT.currTimeMS = new AtomicLong(System.currentTimeMillis());
-
+        OT.wsHandlerHash = new ConcurrentHashMap<String, OTWebSocketHandler> ();
         OT.rootNode = OTNode.$createRoot(rootNodeCls);
         OT.rootNode.beforeAttach();
         OT.rootNode.afterAttach();
