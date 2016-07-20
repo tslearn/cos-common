@@ -63,7 +63,7 @@ class OTMessageDelayPool extends OTThread {
     this.goSystemPriority();
 
     while (this.isRunning()) {
-      if (this.currentTimeMS.get() < OT.Runtime.currentTimeMillis()) {
+      if (this.currentTimeMS.get() < OT.currentTimeMillis()) {
         long currTime = this.currentTimeMS.getAndIncrement();
 
         if (this.count.get() > 0) {

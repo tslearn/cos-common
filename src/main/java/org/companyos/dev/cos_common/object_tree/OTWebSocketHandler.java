@@ -1,6 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.UUID;
 
 import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
@@ -15,28 +15,8 @@ import org.json.JSONArray;
 @WebSocket
 public class OTWebSocketHandler extends WebSocketHandler {
   private Session session;
-  private long uid;
-  private Map<String, Object> params;
-  
-  public long getUid() {
-	  return this.uid;
-  }
-  
-  public synchronized Object get(String key) {
-	  if (params == null) {
-		  return null;
-	  }
-	  
-	  return params.get(key);
-  }
-  
-  public synchronized Object put(String key, Object value) {
-	  if (this.params == null) {
-		this.params = new HashMap<String, Object>();
-	  }  
-	  return this.params.put(key, value);	  
-  }
-  
+  private String security = UUID.randomUUID().toString();
+
   public boolean send(CCReturn<?> ret) {
 	    return send(">", ret);
 	  }
@@ -56,28 +36,27 @@ public class OTWebSocketHandler extends WebSocketHandler {
 	    }
 	  }
  	  
- public void close() {
-	    this.session.close();
-	  }
+  public void close() {
+    this.session.close();
+  }
   
   @OnWebSocketConnect
   public void onConnect(Session session) {
 	  this.session = session;
+    OT.registerWebSocketHandler(security, this);
 	  System.out.println("connected");
   }
   
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.User.unregister(this.uid); 
-    this.uid = 0L;
-    this.params = null;
+    OT.unregisterWebSocketHandler(security);
     this.session = null;
     System.out.println("disconnected");
   }
 
   @OnWebSocketError
   public void onError(Throwable t) {
-    return;
+
   }
   
   @OnWebSocketMessage
@@ -103,7 +82,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
       String msg = message.substring(p1+1, p2);
       callback = message.substring(p2+1, p3+1);
       
-      OTNode tNode = OT.Runtime.getNodeByPath(target);
+      OTNode tNode = OT.getNodeByPath(target);
       
       if (tNode == null) {
         this.send(
@@ -130,10 +109,8 @@ public class OTWebSocketHandler extends WebSocketHandler {
         needFreeThread = true;
       }
       
-      OT.User.setHandler(this);
-      
-      CCReturn<?> ret = OT.Message.evalMsg(tNode, msg, passArgs); 
-      
+      OT.putKeyIfAbsent("securty", this.security);
+      CCReturn<?> ret = OT.evalMsg(tNode, msg, passArgs);
       this.send(callback, ret);
 
       return;
@@ -150,10 +127,9 @@ public class OTWebSocketHandler extends WebSocketHandler {
       if (needFreeThread) {
         OTThread.stopMessageService();
       }
-      OT.User.setHandler(null);
+      OT.clearAllKeys();
     }
   }
-
 
   @Override
   public void configure(WebSocketServletFactory factory) {

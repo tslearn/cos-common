@@ -1,6 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
 
-
+import java.util.Map;
 
 interface IOTThreadEval {
   void visit();
@@ -57,14 +57,14 @@ class OTThread extends Thread {
     ThreadLocal.remove();
   }
 
-  final OTMessageBase pushEvalMessage(OTWebSocketHandler handler, String msgName, OTNode target,
+  final OTMessageBase pushEvalMessage(Map<String, String> paramMap, String msgName, OTNode target,
       OTNode sender, int curDepth, String debug) {
-    return this.currentMsg = this.msgStack.push(handler, msgName, target, sender,
+    return this.currentMsg = this.msgStack.push(paramMap, msgName, target, sender,
         curDepth, debug);
   }
 
   final synchronized void pushMessage(OTMessageBase msg) {
-    this.currentMsg = this.msgStack.push(msg.handler, msg.msgName, msg.target, msg.sender,
+    this.currentMsg = this.msgStack.push(msg.paramMap, msg.msgName, msg.target, msg.sender,
         msg.curDepth, msg.debug);
   }
 

@@ -7,7 +7,7 @@ final class OTThreadMessage extends OTThread {
 
   OTThreadMessage() {
     this.goSystemPriority();
-    this.readyList = OT.Message.msgPool.getReadyList();
+    this.readyList = OT.msgPool.getReadyList();
   }
 
   final public void run() {
@@ -16,7 +16,7 @@ final class OTThreadMessage extends OTThread {
       try {
         OTMessage msg = readyList.take();
         synchronized (this) {
-          this.lastStartMS = OT.Runtime.currentTimeMillis();
+          this.lastStartMS = OT.currentTimeMillis();
         }
         msg.$eval(this);
       }

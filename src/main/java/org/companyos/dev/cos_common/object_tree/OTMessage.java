@@ -1,6 +1,7 @@
 package org.companyos.dev.cos_common.object_tree;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.companyos.dev.cos_common.CCReturn;
 
@@ -9,7 +10,7 @@ enum OTMessageStatus {
 }
 
 class OTMessageBase {
-	OTWebSocketHandler handler;
+	Map<String, String> paramMap;
   String msgName;
   OTNode target;
   OTNode sender;
@@ -18,9 +19,9 @@ class OTMessageBase {
 
   private static volatile OTMessageBase RootMessage = null;
 
-  public OTMessageBase(OTWebSocketHandler handler, String msgName, OTNode target, OTNode sender,
+  public OTMessageBase(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
-    this.handler = handler;
+    this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;
     this.sender = sender;
@@ -49,9 +50,9 @@ final public class OTMessage extends OTMessageBase {
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
-  public OTMessage(OTWebSocketHandler handler, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
-    super(handler, msgName, target, sender, curDepth, debug);
+    super(paramMap, msgName, target, sender, curDepth, debug);
     this.args = args;
     this.status = OTMessageStatus.None;
   }

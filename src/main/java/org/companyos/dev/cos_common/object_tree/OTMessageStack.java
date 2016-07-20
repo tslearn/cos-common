@@ -1,10 +1,12 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import java.util.Map;
+
 public class OTMessageStack {
   private int count = 0;
   private OTMessageBase[] msgPool = new OTMessageBase[0];
 
-  final OTMessageBase push(OTWebSocketHandler handler, String msgName, OTNode target, OTNode sender,
+  final OTMessageBase push(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.count == this.msgPool.length) {
@@ -21,7 +23,7 @@ public class OTMessageStack {
     }
 
     OTMessageBase ret = this.msgPool[count++];
-    ret.handler = handler;
+    ret.paramMap = paramMap;
     ret.msgName = msgName;
     ret.target = target;
     ret.sender = sender;

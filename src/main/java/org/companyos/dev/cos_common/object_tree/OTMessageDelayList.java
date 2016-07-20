@@ -22,7 +22,7 @@ class OTMessageDelayList {
   }
 
   final synchronized boolean add(OTMessage msg, int delayCycle, long evalTime) {
-    if (OT.Runtime.currentTimeMillis() < evalTime) {
+    if (OT.currentTimeMillis() < evalTime) {
       this.tail = this.tail.next = new Item(msg, delayCycle);
       return true;
     }

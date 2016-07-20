@@ -66,7 +66,7 @@ final class OTThreadSystem extends OTThread {
   final void sweepThreads(long nowMS) {
     boolean canSweep = true;
 
-    if (OT.Runtime.isDebug) {
+    if (OT.isDebug) {
       for (int i = 0; i < this.msgThreadPool.length; i++) {
         OTThreadMessage msgThread = this.msgThreadPool[i];
         Thread.State state = msgThread.getState();
@@ -125,9 +125,9 @@ final class OTThreadSystem extends OTThread {
   public void run() {   
     while (this.isRunning()) {
       this.setCPUCores(Runtime.getRuntime().availableProcessors());
-      this.sweepThreads(OT.Runtime.currentTimeMillis());
+      this.sweepThreads(OT.currentTimeMillis());
       this.clearTimeoutThread();
-      if (!OT.Runtime.synchronizeTime()) {
+      if (!OT.synchronizeTime()) {
         CCThread.trySleepNanoSeconds(1000);
       }
     }

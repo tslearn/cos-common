@@ -54,7 +54,7 @@ final class OTMessagePool {
       return CCReturn.error("target not found");
     }
 
-    currentThread.pushEvalMessage(thisMsg.handler, msgName, target, thisMsg.target,
+    currentThread.pushEvalMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
         thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args));
 
     try {
@@ -70,7 +70,7 @@ final class OTMessagePool {
   }
 
   private String getDebugInfo(OTMessageBase thisMsg, int stackDepth,  Object[] args) {
-    if (OT.Runtime.isDebug) {
+    if (OT.isDebug) {
       StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
       StringBuilder sb = new StringBuilder();
 
@@ -111,7 +111,7 @@ final class OTMessagePool {
       return null;
     }
 
-    return this.putMessage(new OTMessage(thisMsg.handler, msgName, target, thisMsg.target,
+    return this.putMessage(new OTMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
         thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args), args), delayms);
   }
 }
