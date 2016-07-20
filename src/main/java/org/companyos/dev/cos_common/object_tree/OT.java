@@ -241,8 +241,8 @@ public class OT {
     static boolean isDebug;
     static boolean isStart = false;
     static private AtomicLong currTimeMS;
-    static OTNode rootNode;
-    static final private OTThreadSystem sysThread = new OTThreadSystem();
+    static private OTNode rootNode;
+    static private OTThreadSystem sysThread;
     static private OTWebSocketServer websocketServer;
 
     synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
@@ -258,6 +258,8 @@ public class OT {
           Runtime.rootNode = OTNode.$createRoot(rootNodeCls);
           Runtime.rootNode.beforeAttach();
           Runtime.rootNode.afterAttach();
+
+          Runtime.sysThread = new OTThreadSystem();
           Runtime.sysThread.turnOn();
 
           Runtime.websocketServer.start();

@@ -6,7 +6,7 @@ import java.util.ListIterator;
 import org.companyos.dev.cos_common.CCThread;
 
 final class OTThreadSystem extends OTThread {
-  final private LinkedList<OTThreadMessage> timeoutThreads = new LinkedList<OTThreadMessage>();
+  private LinkedList<OTThreadMessage> timeoutThreads = new LinkedList<OTThreadMessage>();
   private OTThreadMessage[] msgThreadPool = new OTThreadMessage[0];
   private boolean isTerminal = false;
 
@@ -14,13 +14,6 @@ final class OTThreadSystem extends OTThread {
     this.goSystemPriority();
   }
 
-  final synchronized boolean closeMsgThreadPool() {
-    boolean ret = true;
-    for (int i = 0; i < this.msgThreadPool.length; i++) {
-      ret = ret && this.msgThreadPool[i].shutDown();
-    }
-    return ret;
-  }
 
   final synchronized void clearMsgThreadPool() {
     for (int i = 0; i < this.msgThreadPool.length; i++) {
@@ -29,6 +22,8 @@ final class OTThreadSystem extends OTThread {
       this.timeoutThreads.add(shutDownThread);
       this.msgThreadPool[i] = null;
     }
+
+    this.msgThreadPool =  new OTThreadMessage[0];
   }
 
   final synchronized boolean setCPUCores(int cores) {
@@ -178,6 +173,7 @@ final class OTThreadSystem extends OTThread {
       System.out.println("System Thread Stopped !!!");
     }
 
+    this.timeoutThreads = new LinkedList<OTThreadMessage>();
     this.isTerminal = true;
   }
 }
