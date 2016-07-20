@@ -51,7 +51,7 @@ public class OT {
       }
     }
 
-    public static Object log(Level logLevel, String outString) {
+    public synchronized static Object log(Level logLevel, String outString) {
       OTMessageBase msg = OTThread.currentThread().currentMsg;
       OTNode target = (msg != null) ? msg.target : null;
       String path = "System";
@@ -62,25 +62,29 @@ public class OT {
       Info info = getInfo(logLevel);
 
       if (info != null) {
+        StringBuilder sb = new StringBuilder();
         PrintStream ps = info.isLog ? System.out : System.err;
-        synchronized (ps) {
-          StackTraceElement callerStacks[] = Thread.currentThread()
-              .getStackTrace();
-          ps.println(info.type + " : " + path + " : " + outString);
-          for (int i = 2; i < callerStacks.length; i++)
-            ps.println("  (" + callerStacks[i].getFileName() + ":"
-                + callerStacks[i].getLineNumber() + ")");
+
+        StackTraceElement callerStacks[] = Thread.currentThread()
+            .getStackTrace();
+        ps.println(info.type + " : " + path + " : " + outString);
+        for (int i = 2; i < callerStacks.length; i++) {
+          if (callerStacks[i].getLineNumber() > 0) {
+            sb.append(" ").append(callerStacks[i].getMethodName()).append(": (")
+                .append(callerStacks[i].getFileName()).append(":")
+                .append(callerStacks[i].getLineNumber()).append(")\r\n");
+          }
         }
+        ps.println(sb.toString());
+
         if (msg != null) {
           msg.log(ps);
         }
-        ps.close();
       }
       return null;
     }
   }
 
-  
   static public class Message {
     static final OTMessagePool msgPool = new OTMessagePool();
     
@@ -242,23 +246,33 @@ public class OT {
     static private OTWebSocketServer websocketServer;
 
     synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
-      if (!Runtime.isStart) {
-        Runtime.isDebug = isDebug;
-        Runtime.websocketServer = new OTWebSocketServer(host, port);
-        Runtime.currTimeMS = new AtomicLong(System.currentTimeMillis());
-        Runtime.rootNode = OTNode.$createRoot(rootNodeCls);
-        Runtime.rootNode.beforeAttach();
-        Runtime.rootNode.afterAttach();
-        
+      boolean isStartMessageService  = false;
+      try {
+        if (!Runtime.isStart) {
+          OTThread.startMessageService();
+          isStartMessageService = true;
+          Runtime.isDebug = isDebug;
+          Runtime.websocketServer = new OTWebSocketServer(host, port);
+          Runtime.currTimeMS = new AtomicLong(System.currentTimeMillis());
 
-        Runtime.sysThread.turnOn();
-        //OT.Runtime.msgPool.turnOn();
-        Runtime.websocketServer.start();
-        Runtime.isStart = true;
-        return Runtime.rootNode;
+          Runtime.rootNode = OTNode.$createRoot(rootNodeCls);
+          Runtime.rootNode.beforeAttach();
+          Runtime.rootNode.afterAttach();
+          Runtime.sysThread.turnOn();
+
+          Runtime.websocketServer.start();
+          Runtime.isStart = true;
+
+          return Runtime.rootNode;
+        }
+        else {
+          return null;
+        }
       }
-      else {
-        return null;
+      finally {
+        if (isStartMessageService) {
+          OTThread.stopMessageService();
+        }
       }
     }
     

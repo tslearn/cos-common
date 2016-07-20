@@ -37,13 +37,11 @@ class OTMessageBase {
     return RootMessage;
   }
 
-  final void log(PrintStream ps) {
-    synchronized (ps) {
-      if (this.debug != null)
-        ps.println(this.debug);
-      else
-        ps.println("OTRuntime debug mode is disabled !!!");
-    }
+  final synchronized void log(PrintStream ps) {
+    if (this.debug != null)
+      ps.println(this.debug);
+    else
+      ps.println("OTRuntime debug mode is disabled !!!");
   }
 }
 

@@ -18,12 +18,12 @@ public class OTTest extends OTNode {
 
   @After
   public void onAfter() throws Exception {
-    OT.Runtime.stop();
+	    OT.Runtime.stop();
   }
 
   @Test
   public void tom_ot() throws Exception {
-     OT.Message.postMsg("$.test", "Test", "tianshuo");
+    OT.Message.evalMsg("$.test", "Test", "tianshuo");
+    // System.out.println("eval finish");
   }
-
 }

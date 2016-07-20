@@ -1,5 +1,11 @@
 package org.companyos.dev.cos_common.object_tree;
 
+
+
+interface IOTThreadEval {
+  void visit();
+}
+
 class OTThread extends Thread {
   private static ThreadLocal<OTThread> ThreadLocal = new ThreadLocal<OTThread>();
   private boolean runningStatus = false;
@@ -7,10 +13,18 @@ class OTThread extends Thread {
   private final OTMessageStack msgStack = new OTMessageStack();
   OTMessageBase currentMsg = null;
 
-  OTThread() {
-    
+  protected OTThread() {
+
   }
-  
+
+  public static void eval(IOTThreadEval eval) throws InterruptedException {
+    Thread th = new Thread(() -> {
+      startMessageService();
+      eval.visit();
+      stopMessageService();
+    });
+  }
+
   final void goSystemPriority() {
     this.setPriority(Thread.MAX_PRIORITY);
   }
@@ -39,7 +53,7 @@ class OTThread extends Thread {
     return thObj;
   }
 
-  public static void stopMessageService() {  
+  public static void stopMessageService() {
     ThreadLocal.remove();
   }
 
