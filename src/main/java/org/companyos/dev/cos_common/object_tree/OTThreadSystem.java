@@ -138,17 +138,20 @@ final class OTThreadSystem extends OTThread {
 
     // 正常等待结束
     // synchronizeTime is shutdown, STRuntime.currentTimeMS is not work again !
-    long now = System.currentTimeMillis();
-    while (this.timeoutThreads.size() != 0
-        && System.currentTimeMillis() - now < OTConfig.TerminaWaitTimeMS) {
-      System.out.println("Waiting msgThread stopped "
-          + (now + OTConfig.TerminaWaitTimeMS - System.currentTimeMillis())
-          / 1000 + "s");
-      this.clearTimeoutThread();
-      CCThread.trySleepMS(1000);
+    if (!OT.isDebug) {
+      long now = System.currentTimeMillis();
+      while (this.timeoutThreads.size() != 0
+          && System.currentTimeMillis() - now < OTConfig.TerminaWaitTimeMS) {
+        System.out.println("Waiting msgThread stopped "
+            + (now + OTConfig.TerminaWaitTimeMS - System.currentTimeMillis())
+            / 1000 + "s");
+        this.clearTimeoutThread();
+        CCThread.trySleepMS(1000);
+      }
     }
 
-    now = System.currentTimeMillis();
+
+    long now = System.currentTimeMillis();
     while (this.timeoutThreads.size() != 0
         && System.currentTimeMillis() - now < OTConfig.ForceQuitWaitTimeMS) {
       System.out.println("Terminal msgThread stopped "
@@ -156,7 +159,7 @@ final class OTThreadSystem extends OTThread {
           / 1000 + "s");
       this.terminalTimeoutThread();
       this.clearTimeoutThread();
-      CCThread.trySleepMS(1000);
+      CCThread.trySleepMS(100);
     }
 
     if (this.timeoutThreads.size() > 0) {
