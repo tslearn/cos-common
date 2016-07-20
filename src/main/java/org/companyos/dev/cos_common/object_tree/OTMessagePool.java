@@ -1,10 +1,12 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCReflect;
 import org.companyos.dev.cos_common.CCReturn;
 
 final class OTMessagePool {
   final private static int ReadyMsgMaxSize = 30000;
   final private static int DelayMsgMaxSize = 20000;
+
 
   final private OTMessageDelayPool delayPool;
   final private OTMessageReadyPool readyList;
@@ -52,19 +54,8 @@ final class OTMessagePool {
       return CCReturn.error("target not found");
     }
 
-    String debug = null;
-    if (OT.Runtime.isDebug) {
-      StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-      StringBuilder sb = new StringBuilder();
-      sb.append(" ").append(thisMsg.target.$getPath()).append(": (")
-          .append(callerStacks[3].getFileName()).append(":")
-          .append(callerStacks[3].getLineNumber()).append(")\r\n")
-          .append(thisMsg.debug);
-      debug = sb.toString();
-    }
-
     currentThread.pushEvalMessage(thisMsg.handler, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, debug);
+        thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args));
 
     try {
       return target.$eval(currentThread, args);
@@ -78,6 +69,36 @@ final class OTMessagePool {
     }
   }
 
+  private String getDebugInfo(OTMessageBase thisMsg, int stackDepth,  Object[] args) {
+    if (OT.Runtime.isDebug) {
+      StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
+      StringBuilder sb = new StringBuilder();
+
+
+      if (OTConfig.RootMessageName.equals(thisMsg.msgName)) {
+        sb.append("  @ ")
+            .append("Root Message").append("  ");
+      }
+      else {
+        sb.append("  @ ")
+            .append(thisMsg.target.$getPath()).append(".")
+            .append(thisMsg.msgName)
+            .append(CCReflect.buildCallArgsString(args)).append("  ");
+      }
+
+      sb.append(callerStacks[stackDepth].getClassName()).append(".")
+          .append(callerStacks[stackDepth].getMethodName()).append(": (")
+          .append(callerStacks[stackDepth].getFileName()).append(":")
+          .append(callerStacks[stackDepth].getLineNumber()).append(")\r\n")
+          .append(thisMsg.debug);
+
+      return sb.toString();
+    }
+    else {
+      return null;
+    }
+  }
+
   final OTMessage postMessage(OTThread currentThread, long delayms,
       OTNode target, String msgName, Object[] args) {
     OTMessageBase thisMsg = currentThread.currentMsg;
@@ -86,18 +107,8 @@ final class OTMessagePool {
       return (OTMessage) OT.Log.log(OT.Log.Level.Error, "message depth overflow");
     }
 
-    String debug = null;
-    if (OT.Runtime.isDebug) {
-      StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-      StringBuilder sb = new StringBuilder();
-      sb.append(" ").append(thisMsg.target.$getPath()).append(": (")
-          .append(callerStacks[4].getFileName()).append(":")
-          .append(callerStacks[4].getLineNumber()).append(")\r\n")
-          .append(thisMsg.debug);
-      debug = sb.toString();
-    }
 
     return this.putMessage(new OTMessage(thisMsg.handler, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, debug, args), delayms);
+        thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args), args), delayms);
   }
 }

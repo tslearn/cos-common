@@ -67,15 +67,16 @@ public class OT {
 
         StackTraceElement callerStacks[] = Thread.currentThread()
             .getStackTrace();
-        ps.println(info.type + " : " + path + " : " + outString);
+        sb.append(path + " " + info.type  + ":\r\n  " + outString + "\r\n");
         for (int i = 2; i < callerStacks.length; i++) {
-          if (callerStacks[i].getLineNumber() > 0) {
-            sb.append(" ").append(callerStacks[i].getMethodName()).append(": (")
-                .append(callerStacks[i].getFileName()).append(":")
-                .append(callerStacks[i].getLineNumber()).append(")\r\n");
-          }
+          sb.append(i == 2 ? "  @ " : "    #  ")
+              .append(callerStacks[i].getClassName()).append(".")
+              .append(callerStacks[i].getMethodName()).append(": (")
+              .append(callerStacks[i].getFileName()).append(":")
+              .append(callerStacks[i].getLineNumber()).append(")\r\n");
         }
-        ps.println(sb.toString());
+
+        ps.print(sb.toString());
 
         if (msg != null) {
           msg.log(ps);

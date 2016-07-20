@@ -15,8 +15,12 @@ public class CCReflect {
       if (i != 0)
         sb.append(", ");
 
-      sb.append(args[i].getClass().getCanonicalName());
+      sb.append(args[i].toString())
+          .append(":")
+          .append(args[i].getClass().getCanonicalName());
     }
+
+    sb.append(")");
 
     return sb.toString();
   }

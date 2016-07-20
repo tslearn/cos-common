@@ -31,8 +31,8 @@ class OTMessageBase {
 
   final static OTMessageBase getRootMessage() {
     if (RootMessage == null) {
-      RootMessage = new OTMessageBase(null, "Root", new OTNode(), new OTNode(),
-          OTConfig.DefaultMessageMaxDepth, "Root Message");
+      RootMessage = new OTMessageBase(null, OTConfig.RootMessageName, new OTNode(), new OTNode(),
+          OTConfig.DefaultMessageMaxDepth, "");
     }
     return RootMessage;
   }

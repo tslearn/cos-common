@@ -26,8 +26,8 @@ public class OTTest extends OTNode {
     OT.Message.evalMsg("$.test", "Test", "tianshuo");
   }
 
-  @Test
-  public void tom_ot2() throws Exception {
-    OT.Message.evalMsg("$.test", "Test", "tianshuo");
-  }
+//  @Test
+//  public void tom_ot2() throws Exception {
+//    OT.Message.evalMsg("$.test", "Test", "tianshuo");
+//  }
 }
