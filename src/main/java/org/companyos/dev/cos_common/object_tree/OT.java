@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.companyos.dev.cos_common.CCLightMap;
 import org.companyos.dev.cos_common.CCReturn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +154,7 @@ public class OT {
   public static String getKey(String key) {
     OTThread th = OTThread.currentThread();
     if (th != null && th.currentMsg.paramMap != null) {
-      return th.currentMsg.paramMap.get(key);
+      return (String) th.currentMsg.paramMap.get(key);
     }
     else {
       return null;
@@ -163,24 +164,24 @@ public class OT {
   public static boolean containsKey(String key) {
     OTThread th = OTThread.currentThread();
     if (th != null && th.currentMsg.paramMap != null) {
-      return th.currentMsg.paramMap.containsKey(key);
+      return OT.getKey(key) != null;
     }
     else {
       return false;
     }
   }
 
-  public static String putKeyIfAbsent(String key, String value) {
+  public static boolean putKeyIfAbsent(String key, String value) {
     OTThread th = OTThread.currentThread();
     if (th != null) {
       if (th.currentMsg.paramMap == null) {
-        th.currentMsg.paramMap = new HashMap<String, String>();
+        th.currentMsg.paramMap = new CCLightMap();
       }
 
-      return th.currentMsg.paramMap.putIfAbsent(key, value);
+      return th.currentMsg.paramMap.put(key, value);
     }
     else {
-      return null;
+      return false;
     }
   }
 

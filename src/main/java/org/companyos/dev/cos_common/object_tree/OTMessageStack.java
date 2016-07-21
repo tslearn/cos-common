@@ -1,13 +1,15 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCLightMap;
+
 import java.util.Map;
 
 public class OTMessageStack {
   private int count = 0;
   private OTMessageBase[] msgPool = new OTMessageBase[0];
 
-  final OTMessageBase push(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender,
-      int curDepth, String debug) {
+  final OTMessageBase push(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
+                           int curDepth, String debug) {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.count == this.msgPool.length) {
       OTMessageBase[] newPool = new OTMessageBase[this.count

@@ -1,33 +1,33 @@
-package org.companyos.dev.cos_common.object_tree;
+package org.companyos.dev.cos_common;
 
 import java.util.HashMap;
 
-class OTLightMap {
+public class CCLightMap {
   interface IOTLightMap {
-    boolean put(String key, OTNode value);
+    boolean put(String key, Object value);
 
-    OTNode remove(String key);
+    Object remove(String key);
 
-    OTNode get(String key);
+    Object get(String key);
 
-    OTNode[] values();
+    Object[] values();
 
     int size();
   }
 
   private final class OTLinarLightMap implements IOTLightMap {
     private String[] keys = new String[0];
-    private OTNode[] vals = new OTNode[0];
+    private Object[] vals = new Object[0];
 
     OTLinarLightMap(OTHashLightMap map) {
       if (map != null) {
-        for (java.util.Map.Entry<String, OTNode> entry : map.hash.entrySet()) {
+        for (java.util.Map.Entry<String, Object> entry : map.hash.entrySet()) {
           this.put(entry.getKey(), entry.getValue());
         }
       }
     }
 
-    public boolean put(String key, OTNode value) {
+    public boolean put(String key, Object value) {
       int mid, oldLength = this.keys.length, first = 0, last = oldLength;
 
       while (first < last) {
@@ -45,7 +45,7 @@ class OTLightMap {
       }
 
       String[] newKeys = new String[oldLength + 1];
-      OTNode[] newVals = new OTNode[oldLength + 1];
+      Object[] newVals = new Object[oldLength + 1];
 
       if (first > 0) {
         System.arraycopy(this.keys, 0, newKeys, 0, first);
@@ -68,17 +68,17 @@ class OTLightMap {
       return true;
     }
 
-    final public OTNode remove(String key) {
+    final public Object remove(String key) {
       int low = 0, high = this.keys.length - 1;
 
       while (low <= high) {
         int mid = (low + high) / 2;
         int cmp = this.keys[mid].compareTo(key);
         if (cmp == 0) { // find it
-          OTNode ret = this.vals[mid];
+          Object ret = this.vals[mid];
           int newLength = this.keys.length - 1;
           String[] newKeys = new String[newLength];
-          OTNode[] newVals = new OTNode[newLength];
+          Object[] newVals = new Object[newLength];
 
           if (mid > 0) {
             System.arraycopy(this.keys, 0, newKeys, 0, mid);
@@ -104,7 +104,7 @@ class OTLightMap {
       return null;
     }
 
-    final public OTNode get(String key) {
+    final public Object get(String key) {
       int low = 0, high = this.keys.length - 1;
 
       while (low <= high) {
@@ -120,7 +120,7 @@ class OTLightMap {
       return null;
     }
 
-    public OTNode[] values() {
+    public Object[] values() {
       return this.vals.clone();
     }
 
@@ -130,7 +130,7 @@ class OTLightMap {
   }
 
   private final class OTHashLightMap implements IOTLightMap {
-    final HashMap<String, OTNode> hash = new HashMap<String, OTNode>();
+    final HashMap<String, Object> hash = new HashMap<String, Object>();
 
     public OTHashLightMap(OTLinarLightMap map) {
       for (int i = map.keys.length - 1; i >= 0; i--) {
@@ -138,22 +138,22 @@ class OTLightMap {
       }
     }
 
-    final public boolean put(String key, OTNode value) {
+    final public boolean put(String key, Object value) {
       return this.hash.putIfAbsent(key, value) == null;
     }
 
-    final public OTNode remove(String key) {
+    final public Object remove(String key) {
       return this.hash.remove(key);
     }
 
-    final public OTNode get(String key) {
+    final public Object get(String key) {
       return this.hash.get(key);
     }
 
-    public OTNode[] values() {
-      OTNode[] ret = new OTNode[this.hash.size()];
+    public Object[] values() {
+      Object[] ret = new Object[this.hash.size()];
       int pos = 0;
-      for (java.util.Map.Entry<String, OTNode> entry : this.hash.entrySet()) {
+      for (java.util.Map.Entry<String, Object> entry : this.hash.entrySet()) {
         ret[pos++] = entry.getValue();
       }
       return ret;
@@ -167,7 +167,7 @@ class OTLightMap {
   static final long CONVERTSIZE = 32L;
   private IOTLightMap container = null;
 
-  final synchronized boolean put(String key, OTNode value) {
+  public final synchronized boolean put(String key, Object value) {
     if (key == null || value == null)
       return false;
 
@@ -184,11 +184,11 @@ class OTLightMap {
     return ret;
   }
 
-  final synchronized OTNode remove(String key) {
+  public final synchronized Object remove(String key) {
     if (this.container == null)
       return null;
 
-    OTNode ret = this.container.remove(key);
+    Object ret = this.container.remove(key);
 
     if (ret == null)
       return null;
@@ -205,15 +205,15 @@ class OTLightMap {
     return ret;
   }
 
-  final synchronized OTNode get(String key) {
+  public final synchronized Object get(String key) {
     return (this.container != null) ? this.container.get(key) : null;
   }
 
-  final synchronized int size() {
+  public final synchronized int size() {
     return (this.container != null) ? this.container.size() : 0;
   }
 
-  final synchronized OTNode[] values() {
-    return (this.container != null) ? this.container.values() : new OTNode[0];
+  public final synchronized Object[] values() {
+    return (this.container != null) ? this.container.values() : new Object[0];
   }
 }

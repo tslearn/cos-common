@@ -1,5 +1,7 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCLightMap;
+
 import java.util.Map;
 
 interface IOTThreadEval {
@@ -57,8 +59,8 @@ class OTThread extends Thread {
     ThreadLocal.remove();
   }
 
-  final OTMessageBase pushEvalMessage(Map<String, String> paramMap, String msgName, OTNode target,
-      OTNode sender, int curDepth, String debug) {
+  final OTMessageBase pushEvalMessage(CCLightMap paramMap, String msgName, OTNode target,
+                                      OTNode sender, int curDepth, String debug) {
     return this.currentMsg = this.msgStack.push(paramMap, msgName, target, sender,
         curDepth, debug);
   }

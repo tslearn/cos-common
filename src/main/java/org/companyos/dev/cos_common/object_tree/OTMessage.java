@@ -3,6 +3,7 @@ package org.companyos.dev.cos_common.object_tree;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.companyos.dev.cos_common.CCLightMap;
 import org.companyos.dev.cos_common.CCReturn;
 
 enum OTMessageStatus {
@@ -10,7 +11,7 @@ enum OTMessageStatus {
 }
 
 class OTMessageBase {
-	Map<String, String> paramMap;
+	CCLightMap paramMap;
   String msgName;
   OTNode target;
   OTNode sender;
@@ -19,7 +20,7 @@ class OTMessageBase {
 
   private static volatile OTMessageBase RootMessage = null;
 
-  public OTMessageBase(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender,
+  public OTMessageBase(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
       int curDepth, String debug) {
     this.paramMap = paramMap;
     this.msgName = msgName;
@@ -50,7 +51,7 @@ final public class OTMessage extends OTMessageBase {
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
-  public OTMessage(Map<String, String> paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
     super(paramMap, msgName, target, sender, curDepth, debug);
     this.args = args;

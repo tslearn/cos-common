@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.companyos.dev.cos_common.CCLightMap;
 import org.companyos.dev.cos_common.CCReflect;
 import org.companyos.dev.cos_common.CCReturn;
 
@@ -16,7 +17,7 @@ public class OTNode {
   private static final ConcurrentHashMap<Class<?>, HashMap<String, Method>> $methodCache = new ConcurrentHashMap<Class<?>, HashMap<String, Method>>();
   private OTNode $parent;
   private String $name;
-  private final OTLightMap $children = new OTLightMap();
+  private final CCLightMap $children = new CCLightMap();
 
   static boolean $isOTNodeName(String name) {
     return (name != null) && name.matches("^[_#$@A-Za-z0-9\u4E00-\u9FA5]+$");
@@ -131,7 +132,7 @@ public class OTNode {
   }
 
   final OTNode $getChild(String name) {
-    return this.$children.get(name);
+    return (OTNode) this.$children.get(name);
   }
 
   final boolean $registerChild(String name, OTNode node) {
@@ -146,8 +147,8 @@ public class OTNode {
   final boolean $removeChildren() {
     boolean ret = true;
 
-    for (OTNode child : this.$children.values()) {
-      ret = ret && child.$remove();
+    for (Object child : this.$children.values()) {
+      ret = ret && ((OTNode)child).$remove();
     }
 
     return ret;
