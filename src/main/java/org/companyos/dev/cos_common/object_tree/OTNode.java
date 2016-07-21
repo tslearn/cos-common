@@ -41,7 +41,7 @@ public class OTNode {
           String methodName = md.getName().substring(2);
           if ($isOTMessageName(methodName)
               && map.putIfAbsent(methodName, md) != null) {
-        	  OT.ot_error("Import class " + klass.getName() + " Error !!! " + klassItr.getName() + "." + md.getName() + " has already been defined!");
+        	  OT.$error("Import class " + klass.getName() + " Error !!! " + klassItr.getName() + "." + md.getName() + " has already been defined!");
           }
         }
       }
@@ -96,7 +96,7 @@ public class OTNode {
       if (method == null) {
         String errorMsg =   currentThread.currentMsg.target.$getPath() + ".on"
             + currentThread.currentMsg.msgName + " Syntax not found ";
-        OT.ot_error(errorMsg);
+        OT.$error(errorMsg);
         currentThread.lastEvalSuccess = false;
         return CCReturn.error(errorMsg);
       }
@@ -185,7 +185,7 @@ public class OTNode {
       Object... args) {
 
     if (!OTNode.$isOTNodeName(name)) {
-    	OT.ot_error("Create object " + name + " error, object name is illegel");
+    	OT.$error("Create object " + name + " error, object name is illegel");
     	return null;
     }
 
@@ -229,16 +229,16 @@ public class OTNode {
         return node;
       }
       else {
-    	OT.ot_error("Create object " + name + "error! class:" + klass.getName() + " constructor argument not match");
+    	OT.$error("Create object " + name + "error! class:" + klass.getName() + " constructor argument not match");
         return null;
       }
     }
     catch (NoSuchMethodException e) {
-    	OT.ot_error("Create object " + name + "error! class:" + klass.getName() + " constructor not found");
+    	OT.$error("Create object " + name + "error! class:" + klass.getName() + " constructor not found");
     	return null;
     }
     catch (Exception e) {
-    	OT.ot_error("Create object " + name + "error, " + e);
+    	OT.$error("Create object " + name + "error, " + e);
     	return null;
     }
   }
@@ -256,7 +256,7 @@ public class OTNode {
       node.beforeAttach();
 
       if (!this.$registerChild(name, node)) {
-    	OT.ot_error("node name : " + name + " has exist");
+    	OT.$error("node name : " + name + " has exist");
         return null;
       }
 
@@ -271,19 +271,19 @@ public class OTNode {
 
   final boolean $remove() {
     if (this.$parent == null) {
-      OT.ot_error("System error");
+      OT.$error("System error");
       return false;
     }
 
     this.beforeDetach();
 
     if (!this.$removeChildren()) {
-      OT.ot_error("System error");
+      OT.$error("System error");
       return false;
     }
 
     if (!this.$parent.$unregisterChild(this)) {
-      OT.ot_error("System error");
+      OT.$error("System error");
       return false;
     }
 

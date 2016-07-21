@@ -61,7 +61,7 @@ final class OTMessagePool {
       return target.$eval(currentThread, args);
     }
     catch (Exception e) {
-      OT.ot_error(e.toString());
+      OT.$error(e.toString());
       return CCReturn.error().setE(e);
     }
     finally {
@@ -107,7 +107,7 @@ final class OTMessagePool {
     OTMessageBase thisMsg = currentThread.currentMsg;
 
     if (thisMsg.curDepth <= 0) {
-      OT.ot_error("message depth overflow");
+      OT.$error("message depth overflow");
       return null;
     }
 

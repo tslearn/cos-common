@@ -12,7 +12,7 @@ public class OTWebSocketServer {
 
   public OTWebSocketServer(String hostname, int port) {
     if (port <= 0 || port > 65535) {
-    	OT.ot_error("OTWebSocketServer port " + port + " is illegal!");
+    	OT.$error("OTWebSocketServer port " + port + " is illegal!");
     	return;
     }
     
@@ -34,7 +34,7 @@ public class OTWebSocketServer {
       return true;
     }
     catch (Exception e) {
-      OT.ot_error("Websocket server start error!  " + e);
+      OT.$error("Websocket server start error!  " + e);
       this.websocketServer = null;
       return false;
     }
@@ -47,7 +47,7 @@ public class OTWebSocketServer {
       return true;
     }
     catch (Exception e) {
-      OT.ot_error("Websocket server stop error! " + e);
+      OT.$error("Websocket server stop error! " + e);
       return false;
     }
   }

@@ -43,13 +43,13 @@ public class OTWebSocketHandler extends WebSocketHandler {
   @OnWebSocketConnect
   public void onConnect(Session session) {
 	  this.session = session;
-    OT.registerWebSocketHandler(security, this);
+    OT.$registerWebSocketHandler(security, this);
 	  System.out.println("connected");
   }
   
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.unregisterWebSocketHandler(security);
+    OT.$unregisterWebSocketHandler(security);
     this.session = null;
     System.out.println("disconnected");
   }

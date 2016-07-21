@@ -19,185 +19,87 @@ public class OT {
   static private OTThreadSystem sysThread;
   static private OTWebSocketServer websocketServer;
   static OTMessagePool msgPool;
-
   private static ConcurrentHashMap<String, OTWebSocketHandler> wsHandlerHash;
 
 
-
-  static boolean registerWebSocketHandler(String security, OTWebSocketHandler wsHandler) {
-    return wsHandlerHash.putIfAbsent(security, wsHandler) == null;
+  public final static boolean sendWebSocketMessage(String security, String msg) {
+    OTWebSocketHandler wsHandler = wsHandlerHash.get(security);
+    if (wsHandler != null)
+      return wsHandler.send(msg);
+    else
+      return false;
   }
 
-  static boolean unregisterWebSocketHandler(String security) {
-    return wsHandlerHash.remove(security) != null;
-  }
+  final public static OTNode getNodeByPath(String path) {
+    if (path != null && path.startsWith(OTConfig.STRootName)) {
+      OTNode ret = OT.rootNode;
 
+      if (path.length() == 1) {
+        return ret;
+      }
+      else {
+        String[] nodes = path.trim().split("\\.");
 
-
-  public final static void trace(String msg) {
-    log.trace(toOTMessage(msg));
-  }
-
-  public final static void debug(String msg) {
-    log.debug(toOTMessage(msg));
-  }
-
-  public final static void info(String msg) {
-    log.info(toOTMessage(msg));
-  }
-
-  public final static void warn(String msg) {
-    log.warn(toOTMessage(msg));
-  }
-
-  public final static void error(String msg) {
-    log.error(toOTMessage(msg));
-  }
-
-  final static void fatal(String msg) {
-    log.error(toOTMessage(msg));
-  }
-
-  final static void ot_error(String msg) {
-    log.error(toOTMessage(msg));
-  }
-
-  private static String toOTMessage(String outString) {
-    OTMessageBase msg = OTThread.currentThread().currentMsg;
-    OTNode target = (msg != null) ? msg.target : null;
-    String path = "System";
-    if (target != null) {
-      path = target.$getPath();
+        for (int i = 1; ret != null && i < nodes.length; i++) {
+          ret = ret.$getChild(nodes[i]);
+        }
+        return ret;
+      }
     }
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("\r\n  " + path + ": " + outString + "\r\n");
-
-    StackTraceElement callerStacks[] = Thread.currentThread()
-        .getStackTrace();
-
-    for (int i = 1; i < callerStacks.length; i++) {
-      sb.append(i == 1 ? "  @ " : "    #  ")
-          .append(callerStacks[i].getClassName()).append(".")
-          .append(callerStacks[i].getMethodName()).append(": (")
-          .append(callerStacks[i].getFileName()).append(":")
-          .append(callerStacks[i].getLineNumber()).append(")\r\n");
+    else {
+      return null;
     }
-
-
-    if (msg != null) {
-      sb.append(msg.getDebug());
-    }
-    return sb.toString();
   }
 
   public static CCReturn<?> evalMsg(OTNode target, String msgName, Object... args) {
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.evalMessage(th, target, msgName, args);
-    }
-    else {
-      th = OTThread.startMessageService();
-      try {
-        return msgPool.evalMessage(th, target, msgName, args);
-      }
-      finally {
-        OTThread.stopMessageService();
-      }
-    }
+    return OT.$evalMsg(target, msgName, args);
   }
 
   public static CCReturn<?> evalMsg(String target, String msgName, Object... args) {
-    return OT.evalMsg(OT.getNodeByPath(target), msgName, args);
+    return OT.$evalMsg(OT.getNodeByPath(target), msgName, args);
   }
 
   public static OTMessage postMsg(OTNode target, String msgName, Object... args) {
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.postMessage(th, 0, target, msgName, args);
-    }
-    else {
-      th = OTThread.startMessageService();
-      try {
-        return msgPool.postMessage(th, 0, target, msgName, args);
-      }
-      finally {
-        OTThread.stopMessageService();
-      }
-    }
+    return OT.$postMsg(target, msgName, args);
   }
 
   public static OTMessage postMsg(String target, String msgName, Object... args) {
-    return OT.postMsg(OT.getNodeByPath(target), msgName, args);
+    return OT.$postMsg(OT.getNodeByPath(target), msgName, args);
   }
 
-  public static OTMessage delayPostMsg(long delay, OTNode target, String msgName,
-                                       Object... args) {
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.postMessage(th, delay, target, msgName, args);
-    }
-    else {
-      th = OTThread.startMessageService();
-      try {
-        return msgPool.postMessage(th, delay, target, msgName, args);
-      }
-      finally {
-        OTThread.stopMessageService();
-      }
-    }
+
+  public static OTMessage delayPostMsg(long delay, OTNode target, String msgName, Object... args) {
+    return OT.$delayPostMsg(delay, target, msgName, args);
   }
 
   public static OTMessage delayPostMsg(long delay, String target, String msgName, Object... args) {
-    return OT.delayPostMsg(delay, OT.getNodeByPath(target), msgName, args);
-  }
-
-  static String getKey(String key) {
-    OTThread th = OTThread.currentThread();
-    if (th != null && th.currentMsg.paramMap != null) {
-      return th.currentMsg.paramMap.get(key);
-    }
-    else {
-      return null;
-    }
-  }
-
-  static boolean containsKey(String key) {
-    OTThread th = OTThread.currentThread();
-    if (th != null && th.currentMsg.paramMap != null) {
-      return th.currentMsg.paramMap.containsKey(key);
-    }
-    else {
-      return false;
-    }
-  }
-
-  static boolean clearAllKeys() {
-    OTThread th = OTThread.currentThread();
-    if (th != null && th.currentMsg.paramMap != null) {
-      th.currentMsg.paramMap = null;
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  static String putKeyIfAbsent(String key, String value) {
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      if (th.currentMsg.paramMap == null) {
-        th.currentMsg.paramMap = new HashMap<String, String>();
-      }
-
-      return th.currentMsg.paramMap.putIfAbsent(key, value);
-    }
-    else {
-      return null;
-    }
+    return OT.$delayPostMsg(delay, OT.getNodeByPath(target), msgName, args);
   }
 
 
+  /**
+   * trace ot message
+   * @param msg
+   */
+  public final static void trace(String msg) {
+    log.trace($getCallStackLog(msg));
+  }
+
+  public final static void debug(String msg) {
+    log.debug($getCallStackLog(msg));
+  }
+
+  public final static void info(String msg) {
+    log.info($getCallStackLog(msg));
+  }
+
+  public final static void warn(String msg) {
+    log.warn($getCallStackLog(msg));
+  }
+
+  public final static void error(String msg) {
+    log.error($getCallStackLog(msg));
+  }
 
   synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
     boolean isStartMessageService  = false;
@@ -247,6 +149,142 @@ public class OT {
     }
   }
 
+
+  public static String getKey(String key) {
+    OTThread th = OTThread.currentThread();
+    if (th != null && th.currentMsg.paramMap != null) {
+      return th.currentMsg.paramMap.get(key);
+    }
+    else {
+      return null;
+    }
+  }
+
+  public static boolean containsKey(String key) {
+    OTThread th = OTThread.currentThread();
+    if (th != null && th.currentMsg.paramMap != null) {
+      return th.currentMsg.paramMap.containsKey(key);
+    }
+    else {
+      return false;
+    }
+  }
+
+  public static String putKeyIfAbsent(String key, String value) {
+    OTThread th = OTThread.currentThread();
+    if (th != null) {
+      if (th.currentMsg.paramMap == null) {
+        th.currentMsg.paramMap = new HashMap<String, String>();
+      }
+
+      return th.currentMsg.paramMap.putIfAbsent(key, value);
+    }
+    else {
+      return null;
+    }
+  }
+
+  static boolean clearAllKeys() {
+    OTThread th = OTThread.currentThread();
+    if (th != null && th.currentMsg.paramMap != null) {
+      th.currentMsg.paramMap = null;
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  static boolean $registerWebSocketHandler(String security, OTWebSocketHandler wsHandler) {
+    return wsHandlerHash.putIfAbsent(security, wsHandler) == null;
+  }
+
+  static boolean $unregisterWebSocketHandler(String security) {
+    return wsHandlerHash.remove(security) != null;
+  }
+
+  final static void $error(String msg) {
+    log.error($getCallStackLog(msg));
+  }
+
+  private static String $getCallStackLog(String outString) {
+    OTMessageBase msg = OTThread.currentThread().currentMsg;
+    OTNode target = (msg != null) ? msg.target : null;
+    String path = "System";
+    if (target != null) {
+      path = target.$getPath();
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("\r\n  " + path + ": " + outString + "\r\n");
+
+    StackTraceElement callerStacks[] = Thread.currentThread()
+        .getStackTrace();
+
+    for (int i = 1; i < callerStacks.length; i++) {
+      sb.append(i == 1 ? "  @ " : "    #  ")
+          .append(callerStacks[i].getClassName()).append(".")
+          .append(callerStacks[i].getMethodName()).append(": (")
+          .append(callerStacks[i].getFileName()).append(":")
+          .append(callerStacks[i].getLineNumber()).append(")\r\n");
+    }
+
+
+    if (msg != null) {
+      sb.append(msg.getDebug());
+    }
+    return sb.toString();
+  }
+
+  private static CCReturn<?> $evalMsg(OTNode target, String msgName, Object... args) {
+    OTThread th = OTThread.currentThread();
+    if (th != null) {
+      return msgPool.evalMessage(th, target, msgName, args);
+    }
+    else {
+      th = OTThread.startMessageService();
+      try {
+        return msgPool.evalMessage(th, target, msgName, args);
+      }
+      finally {
+        OTThread.stopMessageService();
+      }
+    }
+  }
+
+  private static OTMessage $postMsg(OTNode target, String msgName, Object... args) {
+    OTThread th = OTThread.currentThread();
+    if (th != null) {
+      return msgPool.postMessage(th, 0, target, msgName, args);
+    }
+    else {
+      th = OTThread.startMessageService();
+      try {
+        return msgPool.postMessage(th, 0, target, msgName, args);
+      }
+      finally {
+        OTThread.stopMessageService();
+      }
+    }
+  }
+
+  public static OTMessage $delayPostMsg(long delay, OTNode target, String msgName,
+                                        Object... args) {
+    OTThread th = OTThread.currentThread();
+    if (th != null) {
+      return msgPool.postMessage(th, delay, target, msgName, args);
+    }
+    else {
+      th = OTThread.startMessageService();
+      try {
+        return msgPool.postMessage(th, delay, target, msgName, args);
+      }
+      finally {
+        OTThread.stopMessageService();
+      }
+    }
+  }
+
   final static boolean synchronizeTime() {
     while (true) {
       long now = System.currentTimeMillis();
@@ -265,26 +303,5 @@ public class OT {
 
   final static long currentTimeMillis() {
     return OT.currTimeMS.get();
-  }
-
-  final public static OTNode getNodeByPath(String path) {
-    if (path != null && path.startsWith(OTConfig.STRootName)) {
-      OTNode ret = OT.rootNode;
-
-      if (path.length() == 1) {
-        return ret;
-      }
-      else {
-        String[] nodes = path.trim().split("\\.");
-
-        for (int i = 1; ret != null && i < nodes.length; i++) {
-          ret = ret.$getChild(nodes[i]);
-        }
-        return ret;
-      }
-    }
-    else {
-      return null;
-    }
   }
 }
