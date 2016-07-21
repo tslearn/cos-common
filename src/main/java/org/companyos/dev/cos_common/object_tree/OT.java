@@ -126,7 +126,7 @@ public class OT {
     boolean isStartMessageService  = false;
     try {
       if (!OT.isStart) {
-
+        OT.info("OT system is starting ... ");
         OT.msgPool = new OTMessagePool();
         OTThread.startMessageService();
         isStartMessageService = true;
@@ -137,6 +137,7 @@ public class OT {
 
         OT.msgPool.turnOn();
 
+        OT.info("OT system is loading object tree ...");
         OT.rootNode = OTNode.$createRoot(rootNodeCls);
         OT.rootNode.beforeAttach();
         OT.rootNode.afterAttach();
