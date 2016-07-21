@@ -95,6 +95,6 @@ class OTMessageDelayPool extends OTThread {
     	  CCThread.trySleepNanoSeconds(1000);
       }
     }
-    System.out.println("System thread for delay pool terminal");
+    OT.info("OT System  delayPool thread terminal");
   }
 }

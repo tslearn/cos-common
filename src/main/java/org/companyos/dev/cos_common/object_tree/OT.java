@@ -126,6 +126,7 @@ public class OT {
     boolean isStartMessageService  = false;
     try {
       if (!OT.isStart) {
+
         OT.msgPool = new OTMessagePool();
         OTThread.startMessageService();
         isStartMessageService = true;
@@ -133,21 +134,30 @@ public class OT {
         OT.websocketServer = new OTWebSocketServer(host, port);
         OT.currTimeMS = new AtomicLong(System.currentTimeMillis());
         OT.wsHandlerHash = new ConcurrentHashMap<String, OTWebSocketHandler> ();
+
+        OT.msgPool.turnOn();
+
         OT.rootNode = OTNode.$createRoot(rootNodeCls);
         OT.rootNode.beforeAttach();
         OT.rootNode.afterAttach();
 
-        OT.msgPool.turnOn();
         OT.sysThread = new OTThreadSystem();
         OT.sysThread.turnOn();
 
-
-        OT.websocketServer.start();
-        OT.isStart = true;
-
-        return OT.rootNode;
+        if (OT.websocketServer.start()) {
+          OT.info("OT system is start successful!");
+          OT.isStart = true;
+          return OT.rootNode;
+        }
+        else {
+          OT.$error("OT system is start failed!", false);
+          OT.isStart = true;
+          OT.stop();
+          return null;
+        }
       }
       else {
+        OT.$error("OT system has already been started", false);
         return null;
       }
     }
@@ -160,12 +170,33 @@ public class OT {
 
   synchronized public static boolean stop() {
     if (OT.isStart) {
+      boolean ret = true;
       OT.isStart = false;
+
       OT.websocketServer.stop();
+      OT.websocketServer = null;
+
       OT.sysThread.close();
+      OT.sysThread = null;
+
       OT.msgPool.shutDown();
-      boolean ret = OT.rootNode.$removeChildren();
-      //ret = ret && OT.Runtime.msgPool.shutDown();
+      OT.msgPool = null;
+
+
+      OT.currTimeMS = new AtomicLong(0);
+
+      OT.wsHandlerHash = null;
+
+      if (OT.rootNode != null) {
+        ret = ret && OT.rootNode.$remove(true);
+        OT.rootNode = null;
+      }
+
+      if (OT.msgPool != null) {
+        ret = ret && OT.msgPool.shutDown();
+        OT.msgPool = null;
+      }
+
       return ret;
     }
     else {
@@ -231,8 +262,17 @@ public class OT {
     log.error($getCallStackLog(msg, true, true));
   }
 
+  final static void $error(String msg, boolean isLogMessageStack) {
+    log.error($getCallStackLog(msg, isLogMessageStack, true));
+  }
+
   private static String $getCallStackLog(String outString, boolean isLogMessageStack, boolean isLogInternal) {
-    OTMessageBase msg = OTThread.currentThread().currentMsg;
+    OTThread otThread =  OTThread.currentThread();
+
+    if (otThread == null)
+      return outString;
+
+    OTMessageBase msg = otThread.currentMsg;
     OTNode target = (msg != null) ? msg.target : null;
     String path = "System";
     if (target != null) {
@@ -240,7 +280,13 @@ public class OT {
     }
 
     StringBuilder sb = new StringBuilder();
-    sb.append(path + ": " + outString);
+
+    if (path == null || path.length() == 0) {
+      sb.append(outString);
+    }
+    else {
+      sb.append(path + ": " + outString);
+    }
 
     if (!isLogMessageStack)
       return sb.toString();
@@ -278,6 +324,12 @@ public class OT {
   }
 
   private static CCReturn<?> $evalMsg(OTNode target, String msgName, Object... args) {
+    if (!OT.isStart) {
+      OT.$error("OT system is not start", false);
+      return null;
+    }
+
+
     OTThread th = OTThread.currentThread();
     if (th != null) {
       return msgPool.evalMessage(th, target, msgName, args);
@@ -294,6 +346,11 @@ public class OT {
   }
 
   private static OTMessage $postMsg(OTNode target, String msgName, Object... args) {
+    if (!OT.isStart) {
+      OT.$error("OT system is not start", false);
+      return null;
+    }
+
     OTThread th = OTThread.currentThread();
     if (th != null) {
       return msgPool.postMessage(th, 0, target, msgName, args);
@@ -311,6 +368,11 @@ public class OT {
 
   public static OTMessage $delayPostMsg(long delay, OTNode target, String msgName,
                                         Object... args) {
+    if (!OT.isStart) {
+      OT.$error("OT system is not start", false);
+      return null;
+    }
+
     OTThread th = OTThread.currentThread();
     if (th != null) {
       return msgPool.postMessage(th, delay, target, msgName, args);

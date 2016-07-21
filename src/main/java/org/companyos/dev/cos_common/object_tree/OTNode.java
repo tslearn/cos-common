@@ -148,7 +148,7 @@ public class OTNode {
     boolean ret = true;
 
     for (Object child : this.$children.values()) {
-      ret = ret && ((OTNode)child).$remove();
+      ret = ret && ((OTNode)child).$remove(false);
     }
 
     return ret;
@@ -270,25 +270,37 @@ public class OTNode {
     }
   }
 
-  final boolean $remove() {
-    if (this.$parent == null) {
-      OT.$error("System error");
-      return false;
+  final boolean $remove(boolean isRoot) {
+    if (isRoot) {
+      this.beforeDetach();
+
+      if (!this.$removeChildren()) {
+        OT.$error("remove " + this.$getPath() + " children error");
+        return false;
+      }
+
+      this.afterDetach();
     }
+    else {
+      if (this.$parent == null) {
+        OT.$error("remove " + this.$getPath() + " error, node has not a parent");
+        return false;
+      }
 
-    this.beforeDetach();
+      this.beforeDetach();
 
-    if (!this.$removeChildren()) {
-      OT.$error("System error");
-      return false;
+      if (!this.$removeChildren()) {
+        OT.$error("remove " + this.$getPath() + " children error");
+        return false;
+      }
+
+      if (!this.$parent.$unregisterChild(this)) {
+        OT.$error("remove " + this.$getPath() + " error, his parent unregister it");
+        return false;
+      }
+
+      this.afterDetach();
     }
-
-    if (!this.$parent.$unregisterChild(this)) {
-      OT.$error("System error");
-      return false;
-    }
-
-    this.afterDetach();
 
     return true;
   }

@@ -44,14 +44,14 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onConnect(Session session) {
 	  this.session = session;
     OT.$registerWebSocketHandler(security, this);
-	  System.out.println("connected");
+	  OT.debug("websock connected! security: " + this.security);
   }
   
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
     OT.$unregisterWebSocketHandler(security);
     this.session = null;
-    System.out.println("disconnected");
+    OT.debug("disconnected! security: " + this.security);
   }
 
   @OnWebSocketError

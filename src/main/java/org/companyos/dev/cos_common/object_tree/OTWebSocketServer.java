@@ -34,7 +34,7 @@ public class OTWebSocketServer {
       return true;
     }
     catch (Exception e) {
-      OT.$error("Websocket server start error!  " + e);
+      OT.$error("Websocket server start error!  " + e, false);
       this.websocketServer = null;
       return false;
     }
@@ -42,12 +42,16 @@ public class OTWebSocketServer {
 
   public boolean stop() {
     try {
-      this.websocketServer.stop();
-      CCThread.trySleepMS(2000);
-      return true;
+      if (this.websocketServer != null) {
+        this.websocketServer.stop();
+        return true;
+      }
+      else {
+        return false;
+      }
     }
     catch (Exception e) {
-      OT.$error("Websocket server stop error! " + e);
+      OT.$error("Websocket server stop error! " + e, false);
       return false;
     }
   }

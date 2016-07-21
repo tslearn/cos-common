@@ -31,7 +31,7 @@ final class OTThreadSystem extends OTThread {
     int oldLength = this.msgThreadPool.length;
 
     if (newLength > oldLength) {
-      System.out.println("Msg Thread set to " + newLength);
+      OT.info("Msg Thread set to " + newLength);
       OTThreadMessage[] newPool = new OTThreadMessage[newLength];
       for (int i = 0; i < oldLength; i++) {
         newPool[i] = this.msgThreadPool[i];
@@ -44,7 +44,7 @@ final class OTThreadSystem extends OTThread {
       return true;
     }
     else if (newLength < oldLength) {
-      System.out.println("Msg Thread set to " + newLength);
+      OT.info("Msg Thread set to " + newLength);
       OTThreadMessage[] newPool = new OTThreadMessage[newLength];
       for (int i = 0; i < newLength; i++) {
         newPool[i] = this.msgThreadPool[i];
@@ -83,7 +83,7 @@ final class OTThreadSystem extends OTThread {
       for (int i = 0; i < this.msgThreadPool.length; i++) {
         OTThreadMessage msgThread = this.msgThreadPool[i];
         if (msgThread.isTimeout(nowMS)) {
-          System.out.println("sweep");
+          OT.info("sweep timeout msg thread " + msgThread.getName());
           OTThreadMessage shutDownThread = this.msgThreadPool[i];
           shutDownThread.shutDown();
           timeoutThreads.add(shutDownThread);
@@ -134,7 +134,7 @@ final class OTThreadSystem extends OTThread {
     
     this.clearMsgThreadPool();
 
-    System.out.println("System is Stopping");
+    OT.info("OT System is Stopping");
 
     // 正常等待结束
     // synchronizeTime is shutdown, STRuntime.currentTimeMS is not work again !
@@ -142,7 +142,7 @@ final class OTThreadSystem extends OTThread {
       long now = System.currentTimeMillis();
       while (this.timeoutThreads.size() != 0
           && System.currentTimeMillis() - now < OTConfig.TerminaWaitTimeMS) {
-        System.out.println("Waiting msgThread stopped "
+        OT.info("Waiting msgThread stopped "
             + (now + OTConfig.TerminaWaitTimeMS - System.currentTimeMillis())
             / 1000 + "s");
         this.clearTimeoutThread();
@@ -150,11 +150,10 @@ final class OTThreadSystem extends OTThread {
       }
     }
 
-
     long now = System.currentTimeMillis();
     while (this.timeoutThreads.size() != 0
         && System.currentTimeMillis() - now < OTConfig.ForceQuitWaitTimeMS) {
-      System.out.println("Terminal msgThread stopped "
+      OT.info("Terminal msgThread stopped "
           + (now + OTConfig.ForceQuitWaitTimeMS - System.currentTimeMillis())
           / 1000 + "s");
       this.terminalTimeoutThread();
@@ -167,13 +166,13 @@ final class OTThreadSystem extends OTThread {
       while (iter.hasNext()) {
         OTThreadMessage msgThread = iter.next();
         if (!msgThread.isTerminal) {
-          System.err.println(msgThread.currentMsg.target.getClass().getName()
-              + ".on" + msgThread.currentMsg.msgName + " is Not Stopping !!!");
+          OT.error(msgThread.currentMsg.target.getClass().getName()
+              + ".on" + msgThread.currentMsg.msgName + " is Not Stopping !!!", false);
         }
       }
     }
     else {
-      System.out.println("System Thread Stopped !!!");
+      OT.info("OT System Thread Stopped !!!");
     }
 
     this.timeoutThreads = new LinkedList<OTThreadMessage>();

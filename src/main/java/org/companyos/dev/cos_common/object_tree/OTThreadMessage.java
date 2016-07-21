@@ -11,7 +11,7 @@ final class OTThreadMessage extends OTThread {
   }
 
   final public void run() {
-    // System.out.println("Message Thread Start");
+    OT.debug("Message Thread " + this.getName() + "Start");
     while (this.isRunning()) {
       try {
         OTMessage msg = readyList.take();
@@ -30,7 +30,7 @@ final class OTThreadMessage extends OTThread {
       }
     }
     this.isTerminal = true;
-    // System.out.println("Message Thread Shutdown");
+    OT.debug("Message Thread " + this.getName() + " Shutdown");
   }
 
   final synchronized boolean isTimeout(long nowMS) {
