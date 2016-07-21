@@ -1,10 +1,10 @@
 package org.companyos.dev.cos_common.object_tree;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.companyos.dev.cos_common.CCLightMap;
+import org.companyos.dev.cos_common.CCReflect;
 import org.companyos.dev.cos_common.CCReturn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,23 +83,43 @@ public class OT {
    * @param msg
    */
   public final static void trace(String msg) {
-    log.trace($getCallStackLog(msg, false));
+    log.trace($getCallStackLog(msg, false, false));
   }
 
   public final static void debug(String msg) {
-    log.debug($getCallStackLog(msg, false));
+    log.debug($getCallStackLog(msg, false, false));
   }
 
   public final static void info(String msg) {
-    log.info($getCallStackLog(msg, false));
+    log.info($getCallStackLog(msg, false, false));
   }
 
   public final static void warn(String msg) {
-    log.warn($getCallStackLog(msg, false));
+    log.warn($getCallStackLog(msg, false, false));
   }
 
   public final static void error(String msg) {
-    log.error($getCallStackLog(msg, false));
+    log.error($getCallStackLog(msg, false, true));
+  }
+
+  public final static void trace(String msg, boolean isLogMessageStack) {
+    log.trace($getCallStackLog(msg, isLogMessageStack, false));
+  }
+
+  public final static void debug(String msg, boolean isLogMessageStack) {
+    log.debug($getCallStackLog(msg, isLogMessageStack, false));
+  }
+
+  public final static void info(String msg, boolean isLogMessageStack) {
+    log.info($getCallStackLog(msg, isLogMessageStack, false));
+  }
+
+  public final static void warn(String msg, boolean isLogMessageStack) {
+    log.warn($getCallStackLog(msg, isLogMessageStack, false));
+  }
+
+  public final static void error(String msg, boolean isLogMessageStack) {
+    log.error($getCallStackLog(msg, isLogMessageStack, true));
   }
 
   synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
@@ -205,10 +225,10 @@ public class OT {
   }
 
   final static void $error(String msg) {
-    log.error($getCallStackLog(msg, true));
+    log.error($getCallStackLog(msg, true, true));
   }
 
-  private static String $getCallStackLog(String outString, boolean isLogInternal) {
+  private static String $getCallStackLog(String outString, boolean isLogMessageStack, boolean isLogInternal) {
     OTMessageBase msg = OTThread.currentThread().currentMsg;
     OTNode target = (msg != null) ? msg.target : null;
     String path = "System";
@@ -217,17 +237,35 @@ public class OT {
     }
 
     StringBuilder sb = new StringBuilder();
-    sb.append("\r\n  " + path + ": " + outString + "\r\n");
+    sb.append(path + ": " + outString);
 
-    StackTraceElement callerStacks[] = Thread.currentThread()
+    if (!isLogMessageStack)
+      return sb.toString();
+
+    // Log Stack
+    StackTraceElement[]  callerStacks = Thread.currentThread()
         .getStackTrace();
 
-    for (int i = 3; i < callerStacks.length; i++) {
-      sb.append(i == 3 ? "  @ " : "    #  ")
-          .append(callerStacks[i].getClassName()).append(".")
-          .append(callerStacks[i].getMethodName()).append(": (")
-          .append(callerStacks[i].getFileName()).append(":")
-          .append(callerStacks[i].getLineNumber()).append(")\r\n");
+    sb.append("\r\n");
+
+    sb.append("  @ ")
+        .append(path).append(".")
+        .append(msg.msgName)
+        .append(CCReflect.buildCallArgsString(msg.args)).append("  ")
+        .append(callerStacks[3].getClassName()).append("#")
+        .append(callerStacks[3].getMethodName()).append(": (")
+        .append(callerStacks[3].getFileName()).append(":")
+        .append(callerStacks[3].getLineNumber()).append(")\r\n");
+
+
+    if (isLogInternal) {
+      for (int i = 4; i < callerStacks.length; i++) {
+        sb.append("    #  ")
+            .append(callerStacks[i].getClassName()).append("#")
+            .append(callerStacks[i].getMethodName()).append(": (")
+            .append(callerStacks[i].getFileName()).append(":")
+            .append(callerStacks[i].getLineNumber()).append(")\r\n");
+      }
     }
 
     if (msg != null) {
@@ -303,5 +341,38 @@ public class OT {
 
   final static long $currentTimeMillis() {
     return OT.currTimeMS.get();
+  }
+
+  final static String $getDebugInfo(OTMessageBase thisMsg, int stackDepth,  Object[] args) {
+    if (OT.isDebug) {
+      StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
+      StringBuilder sb = new StringBuilder();
+
+
+      if (OTConfig.RootMessageName.equals(thisMsg.msgName)) {
+        sb.append("  @ ")
+            .append("Root Message").append("  ")
+            .append(callerStacks[stackDepth].getClassName()).append("#")
+            .append(callerStacks[stackDepth].getMethodName()).append(": (")
+            .append(callerStacks[stackDepth].getFileName()).append(":")
+            .append(callerStacks[stackDepth].getLineNumber()).append(")");
+      }
+      else {
+        sb.append("  @ ")
+            .append(thisMsg.target.$getPath()).append(".")
+            .append(thisMsg.msgName)
+            .append(CCReflect.buildCallArgsString(args)).append("  ")
+            .append(callerStacks[stackDepth].getClassName()).append("#")
+            .append(callerStacks[stackDepth].getMethodName()).append(": (")
+            .append(callerStacks[stackDepth].getFileName()).append(":")
+            .append(callerStacks[stackDepth].getLineNumber()).append(")\r\n")
+            .append(thisMsg.debug);
+      }
+
+      return sb.toString();
+    }
+    else {
+      return null;
+    }
   }
 }

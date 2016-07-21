@@ -55,7 +55,7 @@ final class OTMessagePool {
     }
 
     currentThread.pushEvalMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args));
+        thisMsg.curDepth - 1, OT.$getDebugInfo(thisMsg, 5, args), args);
 
     try {
       return target.$eval(currentThread, args);
@@ -69,39 +69,6 @@ final class OTMessagePool {
     }
   }
 
-  private String getDebugInfo(OTMessageBase thisMsg, int stackDepth,  Object[] args) {
-    if (OT.isDebug) {
-      StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-      StringBuilder sb = new StringBuilder();
-
-
-      if (OTConfig.RootMessageName.equals(thisMsg.msgName)) {
-        sb.append("  @ ")
-            .append("Root Message").append("  ")
-            .append(callerStacks[stackDepth].getClassName()).append(".")
-            .append(callerStacks[stackDepth].getMethodName()).append(": (")
-            .append(callerStacks[stackDepth].getFileName()).append(":")
-            .append(callerStacks[stackDepth].getLineNumber()).append(")");
-      }
-      else {
-        sb.append("  @ ")
-            .append(thisMsg.target.$getPath()).append(".")
-            .append(thisMsg.msgName)
-            .append(CCReflect.buildCallArgsString(args)).append("  ")
-            .append(callerStacks[stackDepth].getClassName()).append(".")
-            .append(callerStacks[stackDepth].getMethodName()).append(": (")
-            .append(callerStacks[stackDepth].getFileName()).append(":")
-            .append(callerStacks[stackDepth].getLineNumber()).append(")\r\n")
-            .append(thisMsg.debug);
-      }
-
-      return sb.toString();
-    }
-    else {
-      return null;
-    }
-  }
-
   final OTMessage postMessage(OTThread currentThread, long delayms,
       OTNode target, String msgName, Object[] args) {
     OTMessageBase thisMsg = currentThread.currentMsg;
@@ -112,6 +79,6 @@ final class OTMessagePool {
     }
 
     return this.putMessage(new OTMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, getDebugInfo(thisMsg, 5, args), args), delayms);
+        thisMsg.curDepth - 1, OT.$getDebugInfo(thisMsg, 5, args), args), delayms);
   }
 }

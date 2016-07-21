@@ -60,14 +60,14 @@ class OTThread extends Thread {
   }
 
   final OTMessageBase pushEvalMessage(CCLightMap paramMap, String msgName, OTNode target,
-                                      OTNode sender, int curDepth, String debug) {
+                                      OTNode sender, int curDepth, String debug, Object[] args) {
     return this.currentMsg = this.msgStack.push(paramMap, msgName, target, sender,
-        curDepth, debug);
+        curDepth, debug, args);
   }
 
   final synchronized void pushMessage(OTMessageBase msg) {
     this.currentMsg = this.msgStack.push(msg.paramMap, msg.msgName, msg.target, msg.sender,
-        msg.curDepth, msg.debug);
+        msg.curDepth, msg.debug, msg.args);
   }
 
   final synchronized void popMessage() {

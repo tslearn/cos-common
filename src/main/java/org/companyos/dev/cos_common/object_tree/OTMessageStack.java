@@ -9,7 +9,7 @@ public class OTMessageStack {
   private OTMessageBase[] msgPool = new OTMessageBase[0];
 
   final OTMessageBase push(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
-                           int curDepth, String debug) {
+                           int curDepth, String debug, Object[] args) {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.count == this.msgPool.length) {
       OTMessageBase[] newPool = new OTMessageBase[this.count
@@ -18,7 +18,7 @@ public class OTMessageStack {
       System.arraycopy(this.msgPool, 0, newPool, 0, this.msgPool.length);
 
       for (int i = newPool.length - 1; i >= this.count; i--) {
-        newPool[i] = new OTMessageBase(null, null, null, null, 0, null);
+        newPool[i] = new OTMessageBase(null, null, null, null, 0, null, null);
       }
 
       this.msgPool = newPool;
@@ -31,6 +31,7 @@ public class OTMessageStack {
     ret.sender = sender;
     ret.curDepth = curDepth;
     ret.debug = debug;
+    ret.args = args;
     return ret;
   }
 

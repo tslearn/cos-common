@@ -11,6 +11,7 @@ enum OTMessageStatus {
 }
 
 class OTMessageBase {
+  Object[] args;
 	CCLightMap paramMap;
   String msgName;
   OTNode target;
@@ -21,19 +22,20 @@ class OTMessageBase {
   private static volatile OTMessageBase RootMessage = null;
 
   public OTMessageBase(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
-      int curDepth, String debug) {
+      int curDepth, String debug, Object[] args) {
     this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;
     this.sender = sender;
     this.curDepth = curDepth;
     this.debug = debug;
+    this.args = args;
   }
 
   final static OTMessageBase getRootMessage() {
     if (RootMessage == null) {
       RootMessage = new OTMessageBase(null, OTConfig.RootMessageName, new OTNode(), new OTNode(),
-          OTConfig.DefaultMessageMaxDepth, "");
+          OTConfig.DefaultMessageMaxDepth, "", new Object[0]);
     }
     return RootMessage;
   }
@@ -47,13 +49,12 @@ class OTMessageBase {
 }
 
 final public class OTMessage extends OTMessageBase {
-  Object[] args;
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
   public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
-    super(paramMap, msgName, target, sender, curDepth, debug);
+    super(paramMap, msgName, target, sender, curDepth, debug, args);
     this.args = args;
     this.status = OTMessageStatus.None;
   }
