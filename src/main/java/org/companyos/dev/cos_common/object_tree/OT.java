@@ -82,23 +82,23 @@ public class OT {
    * @param msg
    */
   public final static void trace(String msg) {
-    log.trace($getCallStackLog(msg));
+    log.trace($getCallStackLog(msg, false));
   }
 
   public final static void debug(String msg) {
-    log.debug($getCallStackLog(msg));
+    log.debug($getCallStackLog(msg, false));
   }
 
   public final static void info(String msg) {
-    log.info($getCallStackLog(msg));
+    log.info($getCallStackLog(msg, false));
   }
 
   public final static void warn(String msg) {
-    log.warn($getCallStackLog(msg));
+    log.warn($getCallStackLog(msg, false));
   }
 
   public final static void error(String msg) {
-    log.error($getCallStackLog(msg));
+    log.error($getCallStackLog(msg, false));
   }
 
   synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
@@ -204,10 +204,10 @@ public class OT {
   }
 
   final static void $error(String msg) {
-    log.error($getCallStackLog(msg));
+    log.error($getCallStackLog(msg, true));
   }
 
-  private static String $getCallStackLog(String outString) {
+  private static String $getCallStackLog(String outString, boolean isLogInternal) {
     OTMessageBase msg = OTThread.currentThread().currentMsg;
     OTNode target = (msg != null) ? msg.target : null;
     String path = "System";
@@ -221,14 +221,13 @@ public class OT {
     StackTraceElement callerStacks[] = Thread.currentThread()
         .getStackTrace();
 
-    for (int i = 1; i < callerStacks.length; i++) {
-      sb.append(i == 1 ? "  @ " : "    #  ")
+    for (int i = 3; i < callerStacks.length; i++) {
+      sb.append(i == 3 ? "  @ " : "    #  ")
           .append(callerStacks[i].getClassName()).append(".")
           .append(callerStacks[i].getMethodName()).append(": (")
           .append(callerStacks[i].getFileName()).append(":")
           .append(callerStacks[i].getLineNumber()).append(")\r\n");
     }
-
 
     if (msg != null) {
       sb.append(msg.getDebug());

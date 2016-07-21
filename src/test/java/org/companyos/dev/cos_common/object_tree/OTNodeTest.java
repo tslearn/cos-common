@@ -26,7 +26,7 @@ public class OTNodeTest extends OTNode {
   }
 
   public void onTest(String name) {
-    OT.postMsg("$.test", "Test1", name);
+    OT.postMsg(this, "Test1", name);
   }
 
   public void onTest1(String name) {
