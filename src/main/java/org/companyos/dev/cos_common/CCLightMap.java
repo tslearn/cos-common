@@ -15,11 +15,11 @@ public class CCLightMap {
     int size();
   }
 
-  private final class OTLinarLightMap implements IOTLightMap {
+  private final class CCLinarLightMap implements IOTLightMap {
     private String[] keys = new String[0];
     private Object[] vals = new Object[0];
 
-    OTLinarLightMap(OTHashLightMap map) {
+    CCLinarLightMap(CCHashLightMap map) {
       if (map != null) {
         for (java.util.Map.Entry<String, Object> entry : map.hash.entrySet()) {
           this.put(entry.getKey(), entry.getValue());
@@ -129,10 +129,10 @@ public class CCLightMap {
     }
   }
 
-  private final class OTHashLightMap implements IOTLightMap {
+  private final class CCHashLightMap implements IOTLightMap {
     final HashMap<String, Object> hash = new HashMap<String, Object>();
 
-    public OTHashLightMap(OTLinarLightMap map) {
+    public CCHashLightMap(CCLinarLightMap map) {
       for (int i = map.keys.length - 1; i >= 0; i--) {
         this.hash.put(map.keys[i], map.vals[i]);
       }
@@ -172,13 +172,13 @@ public class CCLightMap {
       return false;
 
     if (this.container == null) {
-      this.container = new OTLinarLightMap(null);
+      this.container = new CCLinarLightMap(null);
     }
 
     boolean ret = this.container.put(key, value);
     
     if (ret && this.container.size() == CONVERTSIZE) {
-      this.container = new OTHashLightMap((OTLinarLightMap) this.container);
+      this.container = new CCHashLightMap((CCLinarLightMap) this.container);
     }
     
     return ret;
@@ -199,7 +199,7 @@ public class CCLightMap {
       this.container = null;
     }
     else if (size == CONVERTSIZE) {
-      this.container = new OTLinarLightMap((OTHashLightMap) this.container);
+      this.container = new CCLinarLightMap((CCHashLightMap) this.container);
     }
 
     return ret;
