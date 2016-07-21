@@ -284,7 +284,7 @@ public class OT {
     }
   }
 
-  final static boolean synchronizeTime() {
+  final static boolean $synchronizeTime() {
     while (true) {
       long now = System.currentTimeMillis();
       long old = OT.currTimeMS.get();
@@ -300,7 +300,7 @@ public class OT {
     }
   }
 
-  final static long currentTimeMillis() {
+  final static long $currentTimeMillis() {
     return OT.currTimeMS.get();
   }
 }

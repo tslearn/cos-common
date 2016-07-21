@@ -125,9 +125,9 @@ final class OTThreadSystem extends OTThread {
   public void run() {   
     while (this.isRunning()) {
       this.setCPUCores(Runtime.getRuntime().availableProcessors());
-      this.sweepThreads(OT.currentTimeMillis());
+      this.sweepThreads(OT.$currentTimeMillis());
       this.clearTimeoutThread();
-      if (!OT.synchronizeTime()) {
+      if (!OT.$synchronizeTime()) {
         CCThread.trySleepNanoSeconds(1000);
       }
     }

@@ -16,7 +16,7 @@ final class OTThreadMessage extends OTThread {
       try {
         OTMessage msg = readyList.take();
         synchronized (this) {
-          this.lastStartMS = OT.currentTimeMillis();
+          this.lastStartMS = OT.$currentTimeMillis();
         }
         msg.$eval(this);
       }
