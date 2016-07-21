@@ -99,7 +99,7 @@ public class OT {
   }
 
   public final static void error(String msg) {
-    log.error($getCallStackLog(msg, false, true));
+    log.error($getCallStackLog(msg, true, true));
   }
 
   public final static void trace(String msg, boolean isLogMessageStack) {
@@ -137,8 +137,10 @@ public class OT {
         OT.rootNode.beforeAttach();
         OT.rootNode.afterAttach();
 
+        OT.msgPool.turnOn();
         OT.sysThread = new OTThreadSystem();
         OT.sysThread.turnOn();
+
 
         OT.websocketServer.start();
         OT.isStart = true;
@@ -161,6 +163,7 @@ public class OT {
       OT.isStart = false;
       OT.websocketServer.stop();
       OT.sysThread.close();
+      OT.msgPool.shutDown();
       boolean ret = OT.rootNode.$removeChildren();
       //ret = ret && OT.Runtime.msgPool.shutDown();
       return ret;

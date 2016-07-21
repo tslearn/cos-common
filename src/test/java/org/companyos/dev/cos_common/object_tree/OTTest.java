@@ -1,5 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
 
+import org.companyos.dev.cos_common.CCThread;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,5 +23,11 @@ public class OTTest extends OTNode {
   @Test
   public void tom_ot1() throws Exception {
     OT.evalMsg("$.test", "Test", "tian-001");
+
+    OT.postMsg("$.test", "Test", "tian-001");
+
+    OT.delayPostMsg(1000, "$.test", "Test", "tian-001");
+
+    CCThread.trySleepMS(3000);
   }
 }

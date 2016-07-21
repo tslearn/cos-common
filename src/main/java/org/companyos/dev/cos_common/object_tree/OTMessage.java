@@ -55,7 +55,6 @@ final public class OTMessage extends OTMessageBase {
   public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
     super(paramMap, msgName, target, sender, curDepth, debug, args);
-    this.args = args;
     this.status = OTMessageStatus.None;
   }
 
