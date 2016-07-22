@@ -23,10 +23,10 @@ public class OT {
   private static ConcurrentHashMap<String, OTWebSocketHandler> wsHandlerHash;
 
 
-  public final static boolean sendWebSocketMessage(String security, String msg) {
+  public final static boolean sendWebSocketMessage(String security, CCReturn<?> obj) {
     OTWebSocketHandler wsHandler = wsHandlerHash.get(security);
     if (wsHandler != null)
-      return wsHandler.send(msg);
+      return wsHandler.send(obj);
     else
       return false;
   }
@@ -326,7 +326,7 @@ public class OT {
 
   private static CCReturn<?> $evalMsg(OTNode target, String msgName, Object... args) {
     if (!OT.isStart) {
-      OT.$error("OT system is not start", false);
+      OT.$error("OT system is not start", true);
       return null;
     }
 
@@ -348,7 +348,7 @@ public class OT {
 
   private static OTMessage $postMsg(OTNode target, String msgName, Object... args) {
     if (!OT.isStart) {
-      OT.$error("OT system is not start", false);
+      OT.$error("OT system is not start", true);
       return null;
     }
 
@@ -370,7 +370,7 @@ public class OT {
   public static OTMessage $delayPostMsg(long delay, OTNode target, String msgName,
                                         Object... args) {
     if (!OT.isStart) {
-      OT.$error("OT system is not start", false);
+      OT.$error("OT system is not start", true);
       return null;
     }
 

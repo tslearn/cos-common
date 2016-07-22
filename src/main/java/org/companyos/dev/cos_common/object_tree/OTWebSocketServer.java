@@ -1,8 +1,6 @@
 package org.companyos.dev.cos_common.object_tree;
 
 import java.net.InetSocketAddress;
-
-import org.companyos.dev.cos_common.CCThread;
 import org.eclipse.jetty.server.Server;
 
 public class OTWebSocketServer {

@@ -12,20 +12,32 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.json.JSONArray;
+import org.json.JSONObject;
+
+
 @WebSocket
 public class OTWebSocketHandler extends WebSocketHandler {
+  private static final long ClientBack = 1;
+  private static final long ServerBack = 2;
+  	
   private Session session;
   private String security = UUID.randomUUID().toString();
 
+  public boolean response(long callback, CCReturn<?> ret) {
+	  JSONObject r = ret.toJSON();
+	  r.put("c", callback);
+	  r.put("t", ClientBack);
+	  return send(r.toString());
+  }
+  
   public boolean send(CCReturn<?> ret) {
-	    return send(">", ret);
-	  }
+	  JSONObject r = ret.toJSON();
+	  r.put("c", 0);
+	  r.put("t", ServerBack);
+	  return send(r.toString());
+  }
   
-  public boolean send(String callback, CCReturn<?> ret) {
-	  return send(callback + ret.toJSON().toString());
-	  }
-  
-  public boolean send(String text) {
+  private boolean send(String text) {
 	    try {      
 	      this.session.getRemote().sendString(text);
 	      return true;
@@ -44,14 +56,14 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onConnect(Session session) {
 	  this.session = session;
     OT.$registerWebSocketHandler(security, this);
-	  OT.debug("websock connected! security: " + this.security);
+	  OT.info("websock connected! security: " + this.security, true);
   }
   
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
     OT.$unregisterWebSocketHandler(security);
     this.session = null;
-    OT.debug("disconnected! security: " + this.security);
+    OT.info("disconnected! security: " + this.security);
   }
 
   @OnWebSocketError
@@ -61,67 +73,54 @@ public class OTWebSocketHandler extends WebSocketHandler {
   
   @OnWebSocketMessage
   public void onMessage(String message) {
-    String callback = ">";
     boolean needFreeThread = false;
     
-    try {      
-      int p1 = message.indexOf("@");
-      int p2 = message.indexOf("<");
-      int p3 = message.indexOf(">");
+    try { 
+        JSONObject client = new JSONObject(message);
+ 
+        String target = client.getString("t");  
+        String msg = client.getString("m");  
+        long callback = client.getLong("c");
+        
+        if (callback <= 0) {
+           	this.send(CCReturn.error("OT server message callback error: [" + callback + "]")); 
+           	return;
+        }
+              
+        OTNode tNode = OT.getNodeByPath(target);
       
-      if (p1 <= 0 || p1 > p2 || p2 > p3) { 
-    	  
-       this.send(
-    		   callback, 
-    		   CCReturn.error("OT server receive data format error, received: " + message)
-    		   ); 
-       return;
-      }
+        if (tNode == null) {
+        	this.response(callback, CCReturn.error("OT server message target error: " + target)); 
+        	return;
+        }
       
-      String target = message.substring(0, p1);
-      String msg = message.substring(p1+1, p2);
-      callback = message.substring(p2+1, p3+1);
+        JSONArray args = client.getJSONArray("a");
+        if (args == null) {
+        	args = new JSONArray();
+        }
+               
+        Object[] passArgs = new Object[args.length()];
       
-      OTNode tNode = OT.getNodeByPath(target);
-      
-      if (tNode == null) {
-        this.send(
-        		callback, 
-        		CCReturn.error("OT server eval error! target not found, target: " + target)
-        		); 
-        return;
-      }
-      
-      String args = message.substring(p3+1);  
-      args = (args == null || args.length() == 0) ? "[]" : args;
-      
-      JSONArray json = new JSONArray(args);        
-      Object[] passArgs = new Object[json.length()];
-      
-      for (int i = 0; i < json.length(); i++) {
-        passArgs[i] = json.get(i);
-      }
-      
-      OTThread th = OTThread.currentThread();
+	    for (int i = 0; i < args.length(); i++) {
+	        passArgs[i] = args.get(i);
+	    }
+	      
+	    OTThread th = OTThread.currentThread();
 
-      if (th == null) {
-        th = OTThread.startMessageService();
-        needFreeThread = true;
-      }
+		if (th == null) {
+	        th = OTThread.startMessageService();
+	        needFreeThread = true;
+		}
       
-      OT.putKeyIfAbsent("securty", this.security);
-      CCReturn<?> ret = OT.evalMsg(tNode, msg, passArgs);
-      this.send(callback, ret);
-
-      return;
+		OT.putKeyIfAbsent("securty", this.security);
+		
+		CCReturn<?> ret = OT.evalMsg(tNode, msg, passArgs);
+		this.response(callback, ret);
+		return;
     }
     catch (Exception e) {
-        this.send(
-        		callback, 
-        		CCReturn.error("OT server eval exception").setE(e)
-        		); 
-
-      return;
+        this.send(CCReturn.error("OT server eval message exception").setE(e)); 
+        return;
     }
     finally {  
       if (needFreeThread) {

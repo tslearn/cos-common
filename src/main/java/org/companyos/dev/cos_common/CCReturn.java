@@ -7,26 +7,25 @@ import org.json.JSONObject;
  * Created by tianshuo on 16/7/13.
  */
 public class CCReturn<T> {
-    private boolean ok;
+    private boolean success;
     private String message;
-    private String debug;
-    private T ret;
+    private T value;
     private Exception exception;
 
-    private CCReturn(boolean ok) {
-        this.ok = ok;
+    private CCReturn(boolean success) {
+        this.success = success;
     }
 
-    public boolean isOk() {
-        return this.ok;
+    public boolean isSuccess() {
+        return this.success;
     }
 
-    public T getR() {
-        return this.ret;
+    public T getV() {
+        return this.value;
     }
 
-    public CCReturn<T> setR(T ret) {
-        this.ret = ret;
+    public CCReturn<T> setV(T retValue) {
+        this.value = retValue;
         return this;
     }
 
@@ -39,9 +38,6 @@ public class CCReturn<T> {
         return this;
     }
 
-    public String getD() {
-        return this.debug;
-    }
     
     public Exception getE() {
         return this.exception;
@@ -52,18 +48,13 @@ public class CCReturn<T> {
         this.exception = exception;
         return this;
     }
-      
-    public CCReturn<T> setD(String debug) {
-        this.debug = debug;
-        return this;
-    }
 
     public static <E> CCReturn<E> success() {
         return new CCReturn<>(true);
     }
 
     public static <E> CCReturn<E> success(E ret) {
-        return new CCReturn<E>(true).setR(ret);
+        return new CCReturn<E>(true).setV(ret);
     }
 
     public static <E> CCReturn<E> error() {
@@ -75,17 +66,14 @@ public class CCReturn<T> {
     }
     
     public JSONObject toJSON() {
+    	String e = this.exception == null ? null : this.exception.toString();
+    	String v = this.getV() == null ? null : this.getV().toString();
+    	
         return new JSONObject()
-            .put("ok", this.isOk())
-            .put("m", this.getM())
-            .put("v", this.getR().toString())
-            .put("e", this.getE())
-            .put("d", this.getD());
+                .put("s", this.success)
+                .put("m", this.message)
+                .put("e", e)
+                .put("v", v);
+
     }
-      
-//    private static String getDebug() {
-//        int upMethodDepth = 3;
-//        StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
-//        return callerStacks[upMethodDepth].toString();
-// 	}
 }

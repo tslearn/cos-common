@@ -2,8 +2,6 @@ package org.companyos.dev.cos_common.object_tree;
 
 import org.companyos.dev.cos_common.CCLightMap;
 
-import java.util.Map;
-
 public class OTMessageStack {
   private int count = 0;
   private OTMessageBase[] msgPool = new OTMessageBase[0];

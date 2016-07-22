@@ -1,6 +1,5 @@
 package org.companyos.dev.cos_common.object_tree;
 
-import org.companyos.dev.cos_common.CCReflect;
 import org.companyos.dev.cos_common.CCReturn;
 
 final class OTMessagePool {
