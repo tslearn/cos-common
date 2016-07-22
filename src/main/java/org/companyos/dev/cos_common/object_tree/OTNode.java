@@ -103,7 +103,17 @@ public class OTNode {
       }
       
       currentThread.lastEvalSuccess = true;
-      return (CCReturn<?>)method.invoke(this, args);
+      Object ret = method.invoke(this, args);
+
+      if (ret == null)
+        return CCReturn.success(null);
+
+      try {
+        return (CCReturn<?>) ret;
+      }
+      catch (Exception e) {
+          return CCReturn.success(ret);
+      }
     }
     catch (InvocationTargetException e) {
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"

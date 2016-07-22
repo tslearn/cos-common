@@ -24,7 +24,15 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private String security = UUID.randomUUID().toString();
 
   public boolean response(long callback, CCReturn<?> ret) {
-	  JSONObject r = ret.toJSON();
+    JSONObject r = null;
+
+    if (ret == null) {
+      r = new JSONObject();
+    }
+    else {
+      r = ret.toJSON();
+    }
+
 	  r.put("c", callback);
 	  r.put("t", ClientBack);
 	  return send(r.toString());
@@ -38,6 +46,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
   }
   
   private boolean send(String text) {
+	  OT.info("Send back to client: " + text);
 	    try {      
 	      this.session.getRemote().sendString(text);
 	      return true;

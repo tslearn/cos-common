@@ -9,7 +9,7 @@ import org.companyos.dev.cos_common.object_tree.OTNode;
 
 class OTTest extends OTNode {
   public CCReturn<String> onTest(String name) {
-    return CCReturn.success("hello " + name).setE(new Exception("hihiih")).setM("message ooo");
+    return CCReturn.success("hello " + name);
   }
 }
 
