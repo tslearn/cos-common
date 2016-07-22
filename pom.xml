@@ -4,7 +4,7 @@
 
   <groupId>org.companyos.dev</groupId>
   <artifactId>cos-common</artifactId>
-  <version>0.0.13-SNAPSHOT</version>
+  <version>0.0.14-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>cos-common</name>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20151123</version>
+      <version>20160212</version>
     </dependency>
 
     <!-- http://jdeferred.org -->
