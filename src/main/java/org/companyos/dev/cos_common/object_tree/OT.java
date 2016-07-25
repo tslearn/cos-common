@@ -31,6 +31,14 @@ public class OT {
       return false;
   }
 
+  public final static boolean responseWebSocketMessage(long callback, String security, CCReturn<?> obj) {
+    OTWebSocketHandler wsHandler = wsHandlerHash.get(security);
+    if (wsHandler != null)
+      return wsHandler.response(callback, obj);
+    else
+      return false;
+  }
+
   final public static OTNode getNodeByPath(String path) {
     if (path != null && path.startsWith(OTConfig.STRootName)) {
       OTNode ret = OT.rootNode;
@@ -53,25 +61,37 @@ public class OT {
   }
 
   public static CCReturn<?> evalMsg(OTNode target, String msgName, Object... args) {
-    boolean needStopMessageService = false;
-    OTThread th = OTThread.currentThread();
-
-    if (th == null) {
-      th = OTThread.startMessageService();
-      needStopMessageService = true;
-    }
-
-    try {
-      return msgPool.evalMessage(th, $compileMessage(target, msgName, args));
-    }
-    finally {
-      if (needStopMessageService) {
-        OTThread.stopMessageService();
-      }
-    }
+    return evalMsg($compileMessage(OTMessageType.None, 0, null, target, msgName, args));
   }
 
   public static CCReturn<?> evalMsg(String target, String msgName, Object... args) {
+    return evalMsg($compileMessage(OTMessageType.None, 0, null, OT.getNodeByPath(target), msgName, args));
+  }
+
+  public static OTMessage postMsg(OTNode target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.None, 0, null, target, msgName, args), 0);
+  }
+
+  public static OTMessage postMsg(String target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.None, 0, null, OT.getNodeByPath(target), msgName, args), 0);
+  }
+
+  public static OTMessage delayPostMsg(long delay, OTNode target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.None, 0, null, target, msgName, args), delay);
+  }
+
+  public static OTMessage delayPostMsg(long delay, String target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.None, 0, null, OT.getNodeByPath(target), msgName, args), delay);
+  }
+
+
+  static OTMessage postMsgWithWebSocket(long callback, String security, String target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.WebSocket, callback, security, OT.getNodeByPath(target), msgName, args), 0);
+  }
+
+
+
+  private static CCReturn<?> evalMsg(OTMessage msg) {
     boolean needStopMessageService = false;
     OTThread th = OTThread.currentThread();
 
@@ -81,7 +101,7 @@ public class OT {
     }
 
     try {
-      return msgPool.evalMessage(th, $compileMessage(OT.getNodeByPath(target), msgName, args));
+      return msgPool.evalMessage(th, msg);
     }
     finally {
       if (needStopMessageService) {
@@ -89,23 +109,6 @@ public class OT {
       }
     }
   }
-
-  public static OTMessage postMsg(OTNode target, String msgName, Object... args) {
-    return msgPool.postMessage($compileMessage(target, msgName, args), 0);
-  }
-
-  public static OTMessage postMsg(String target, String msgName, Object... args) {
-    return msgPool.postMessage($compileMessage(OT.getNodeByPath(target), msgName, args), 0);
-  }
-
-  public static OTMessage delayPostMsg(long delay, OTNode target, String msgName, Object... args) {
-    return msgPool.postMessage($compileMessage(target, msgName, args), delay);
-  }
-
-  public static OTMessage delayPostMsg(long delay, String target, String msgName, Object... args) {
-    return msgPool.postMessage($compileMessage(OT.getNodeByPath(target), msgName, args), delay);
-  }
-
 
   /**
    * trace ot message
@@ -352,7 +355,7 @@ public class OT {
     return sb.toString();
   }
 
-  private static OTMessage $compileMessage(OTNode target, String msgName, Object... args) {
+  private static OTMessage $compileMessage(OTMessageType type, long callback, String security, OTNode target, String msgName, Object... args) {
     boolean needStopMessageService = false;
     OTThread th = OTThread.currentThread();
 
@@ -363,6 +366,9 @@ public class OT {
 
     try {
       return new OTMessage(
+          type,
+          callback,
+          security,
           th.currentMsg.paramMap,
           msgName,
           target,

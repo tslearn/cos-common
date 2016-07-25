@@ -9,12 +9,8 @@ import org.companyos.dev.cos_common.object_tree.OTNode;
  */
 
 class OTTest extends OTNode {
-  public void onTest(String name) {
-    OT.postMsg(this.$getPath(), "Test1", name);
-  }
-
-  public void onTest1(String name) {
-    OT.info("hello " + name, true);
+  public String onTest(String name) {
+    return "hello " + name;
   }
 }
 
@@ -27,6 +23,6 @@ class OTRoot extends OTNode {
 public class App {
   public static void main(String[] args) {
     OT.start("0.0.0.0", 8999, OTRoot.class, true);
-    OT.evalMsg("$.test", "Test",  "tianshuo");
+    // OT.evalMsg("$.test", "Test",  "tianshuo");
   }
 }

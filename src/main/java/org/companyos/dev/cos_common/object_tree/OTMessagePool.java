@@ -65,6 +65,18 @@ final class OTMessagePool {
       }
     }
 
+    switch (msg.type) {
+      case WebSocket:
+        if (msg.callback > 0 && msg.security != null && msg.security.length() > 0) {
+          OT.responseWebSocketMessage(msg.callback, msg.security, ret);
+        }
+        break;
+      case Http:
+        break;
+      default:
+        break;
+    }
+
     return ret;
   }
 }

@@ -19,7 +19,7 @@ import org.json.JSONObject;
 public class OTWebSocketHandler extends WebSocketHandler {
   private static final long ClientBack = 1;
   private static final long ServerBack = 2;
-  	
+
   private Session session;
   private String security = UUID.randomUUID().toString();
 
@@ -33,41 +33,41 @@ public class OTWebSocketHandler extends WebSocketHandler {
       r = ret.toJSON();
     }
 
-	  r.put("c", callback);
-	  r.put("t", ClientBack);
-	  return send(r.toString());
+    r.put("c", callback);
+    r.put("t", ClientBack);
+    return send(r.toString());
   }
-  
+
   public boolean send(CCReturn<?> ret) {
-	  JSONObject r = ret.toJSON();
-	  r.put("c", 0);
-	  r.put("t", ServerBack);
-	  return send(r.toString());
+    JSONObject r = ret.toJSON();
+    r.put("c", 0);
+    r.put("t", ServerBack);
+    return send(r.toString());
   }
-  
-  private boolean send(String text) {
-	  OT.info("Send back to client: " + text);
-	    try {      
-	      this.session.getRemote().sendString(text);
-	      return true;
-	    }
-	    catch (Exception e) {
-	      e.printStackTrace();
-	      return false;
-	    }
-	  }
- 	  
+
+  private synchronized boolean send(String text) {
+    OT.info("Send back to client: " + text);
+    try {
+      this.session.getRemote().sendString(text);
+      return true;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   public void close() {
     this.session.close();
   }
-  
+
   @OnWebSocketConnect
   public void onConnect(Session session) {
-	  this.session = session;
+    this.session = session;
     OT.$registerWebSocketHandler(security, this);
-	  OT.info("websock connected! security: " + this.security, true);
+    OT.info("websock connected! security: " + this.security, true);
   }
-  
+
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
     OT.$unregisterWebSocketHandler(security);
@@ -79,64 +79,34 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onError(Throwable t) {
 
   }
-  
+
   @OnWebSocketMessage
   public void onMessage(String message) {
-    boolean needFreeThread = false;
-    
-    try { 
-        JSONObject client = new JSONObject(message);
- 
-        String target = client.getString("t");  
-        String msg = client.getString("m");  
-        long callback = client.getLong("c");
-        
-        if (callback <= 0) {
-           	this.send(CCReturn.error("OT server message callback error: [" + callback + "]")); 
-           	return;
-        }
-              
-        OTNode tNode = OT.getNodeByPath(target);
-      
-        if (tNode == null) {
-        	this.response(callback, CCReturn.error("OT server message target error: " + target)); 
-        	return;
-        }
-      
-        JSONArray args = client.getJSONArray("a");
-        if (args == null) {
-        	args = new JSONArray();
-        }
-               
-        Object[] passArgs = new Object[args.length()];
-      
-	    for (int i = 0; i < args.length(); i++) {
-	        passArgs[i] = args.get(i);
-	    }
-	      
-	    OTThread th = OTThread.currentThread();
+    JSONObject client = new JSONObject(message);
 
-		if (th == null) {
-	        th = OTThread.startMessageService();
-	        needFreeThread = true;
-		}
-      
-		OT.putKeyIfAbsent("securty", this.security);
-		
-		CCReturn<?> ret = OT.evalMsg(tNode, msg, passArgs);
-		this.response(callback, ret);
-		return;
+    String target = client.getString("t");
+    String msg = client.getString("m");
+    long callback = client.getLong("c");
+
+    if (callback <= 0) {
+      this.send(CCReturn.error("OT server message callback error: [" + callback + "]"));
+      return;
     }
-    catch (Exception e) {
-        this.send(CCReturn.error("OT server eval message exception").setE(e)); 
-        return;
+
+    JSONArray args = client.getJSONArray("a");
+    if (args == null) {
+      args = new JSONArray();
     }
-    finally {  
-      if (needFreeThread) {
-        OTThread.stopMessageService();
-      }
-      OT.clearAllKeys();
+
+    Object[] passArgs = new Object[args.length()];
+
+    for (int i = 0; i < args.length(); i++) {
+      passArgs[i] = args.get(i);
     }
+
+    OT.postMsgWithWebSocket(callback, security, target, msg, passArgs);
+
+    return;
   }
 
   @Override

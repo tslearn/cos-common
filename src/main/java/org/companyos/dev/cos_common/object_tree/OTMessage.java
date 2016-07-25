@@ -9,8 +9,28 @@ enum OTMessageStatus {
   None, Success, Error
 }
 
+enum OTMessageType {
+  None, WebSocket, Http
+}
+
+
 
 final public class OTMessage {
+  private static final OTMessage RootMessage = new OTMessage(
+      OTMessageType.None,
+      0,
+      null,
+      null,
+      OTConfig.RootMessageName,
+      new OTNode(),
+      new OTNode(),
+      OTConfig.DefaultMessageMaxDepth,
+      "",
+      new Object[0]);
+
+  OTMessageType type;
+  long callback;
+  String security;
   Object[] args;
   CCLightMap paramMap;
   String msgName;
@@ -21,10 +41,12 @@ final public class OTMessage {
   volatile private OTMessageStatus status;
   volatile private LinkedList<OTCallback> callbackPool;
 
-  private static volatile OTMessage RootMessage = null;
 
-  public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(OTMessageType type, long callback, String security, CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
+    this.type = type;
+    this.callback = callback;
+    this.security = security;
     this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;
@@ -37,10 +59,6 @@ final public class OTMessage {
 
 
   final static OTMessage getRootMessage() {
-    if (RootMessage == null) {
-      RootMessage = new OTMessage(null, OTConfig.RootMessageName, new OTNode(), new OTNode(),
-          OTConfig.DefaultMessageMaxDepth, "", new Object[0]);
-    }
     return RootMessage;
   }
 
