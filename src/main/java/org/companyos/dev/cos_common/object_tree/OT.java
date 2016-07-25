@@ -237,6 +237,17 @@ public class OT {
     }
   }
 
+
+  public static String getSecurity() {
+    OTThread th = OTThread.currentThread();
+    if (th != null) {
+      return th.currentMsg.security;
+    }
+    else {
+      return null;
+    }
+  }
+
   public static String getKey(String key) {
     OTThread th = OTThread.currentThread();
     if (th != null && th.currentMsg.paramMap != null) {

@@ -10,7 +10,7 @@ import org.companyos.dev.cos_common.object_tree.OTNode;
 
 class OTTest extends OTNode {
   public String onTest(String name) {
-    return "hello " + name;
+    return "hello " + name + OT.getSecurity();
   }
 }
 
