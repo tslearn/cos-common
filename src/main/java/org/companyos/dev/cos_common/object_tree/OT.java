@@ -53,28 +53,57 @@ public class OT {
   }
 
   public static CCReturn<?> evalMsg(OTNode target, String msgName, Object... args) {
-    return OT.$evalMsg(target, msgName, args);
+    boolean needStopMessageService = false;
+    OTThread th = OTThread.currentThread();
+
+    if (th == null) {
+      th = OTThread.startMessageService();
+      needStopMessageService = true;
+    }
+
+    try {
+      return msgPool.evalMessage(th, $compileMessage(target, msgName, args));
+    }
+    finally {
+      if (needStopMessageService) {
+        OTThread.stopMessageService();
+      }
+    }
   }
 
   public static CCReturn<?> evalMsg(String target, String msgName, Object... args) {
-    return OT.$evalMsg(OT.getNodeByPath(target), msgName, args);
+    boolean needStopMessageService = false;
+    OTThread th = OTThread.currentThread();
+
+    if (th == null) {
+      th = OTThread.startMessageService();
+      needStopMessageService = true;
+    }
+
+    try {
+      return msgPool.evalMessage(th, $compileMessage(OT.getNodeByPath(target), msgName, args));
+    }
+    finally {
+      if (needStopMessageService) {
+        OTThread.stopMessageService();
+      }
+    }
   }
 
   public static OTMessage postMsg(OTNode target, String msgName, Object... args) {
-    return OT.$postMsg(target, msgName, args);
+    return msgPool.postMessage($compileMessage(target, msgName, args), 0);
   }
 
   public static OTMessage postMsg(String target, String msgName, Object... args) {
-    return OT.$postMsg(OT.getNodeByPath(target), msgName, args);
+    return msgPool.postMessage($compileMessage(OT.getNodeByPath(target), msgName, args), 0);
   }
 
-
   public static OTMessage delayPostMsg(long delay, OTNode target, String msgName, Object... args) {
-    return OT.$delayPostMsg(delay, target, msgName, args);
+    return msgPool.postMessage($compileMessage(target, msgName, args), delay);
   }
 
   public static OTMessage delayPostMsg(long delay, String target, String msgName, Object... args) {
-    return OT.$delayPostMsg(delay, OT.getNodeByPath(target), msgName, args);
+    return msgPool.postMessage($compileMessage(OT.getNodeByPath(target), msgName, args), delay);
   }
 
 
@@ -205,7 +234,6 @@ public class OT {
     }
   }
 
-
   public static String getKey(String key) {
     OTThread th = OTThread.currentThread();
     if (th != null && th.currentMsg.paramMap != null) {
@@ -324,66 +352,29 @@ public class OT {
     return sb.toString();
   }
 
-  private static CCReturn<?> $evalMsg(OTNode target, String msgName, Object... args) {
-    if (!OT.isStart) {
-      OT.$error("OT system is not start", true);
-      return null;
-    }
-
-
+  private static OTMessage $compileMessage(OTNode target, String msgName, Object... args) {
+    boolean needStopMessageService = false;
     OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.evalMessage(th, target, msgName, args);
-    }
-    else {
+
+    if (th == null) {
       th = OTThread.startMessageService();
-      try {
-        return msgPool.evalMessage(th, target, msgName, args);
-      }
-      finally {
-        OTThread.stopMessageService();
-      }
-    }
-  }
-
-  private static OTMessage $postMsg(OTNode target, String msgName, Object... args) {
-    if (!OT.isStart) {
-      OT.$error("OT system is not start", true);
-      return null;
+      needStopMessageService = true;
     }
 
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.postMessage(th, 0, target, msgName, args);
-    }
-    else {
-      th = OTThread.startMessageService();
-      try {
-        return msgPool.postMessage(th, 0, target, msgName, args);
-      }
-      finally {
-        OTThread.stopMessageService();
-      }
-    }
-  }
+    try {
+      return new OTMessage(
+          th.currentMsg.paramMap,
+          msgName,
+          target,
+          th.currentMsg.target,
+          th.currentMsg.curDepth - 1,
+          OT.$getDebugInfo(th.currentMsg, 4, args),
+          args
+      );
 
-  public static OTMessage $delayPostMsg(long delay, OTNode target, String msgName,
-                                        Object... args) {
-    if (!OT.isStart) {
-      OT.$error("OT system is not start", true);
-      return null;
     }
-
-    OTThread th = OTThread.currentThread();
-    if (th != null) {
-      return msgPool.postMessage(th, delay, target, msgName, args);
-    }
-    else {
-      th = OTThread.startMessageService();
-      try {
-        return msgPool.postMessage(th, delay, target, msgName, args);
-      }
-      finally {
+    finally {
+      if (needStopMessageService) {
         OTThread.stopMessageService();
       }
     }

@@ -27,7 +27,7 @@ final class OTMessagePool {
     return this.delayPool.shutDown();
   }
 
-  final private OTMessage putMessage(OTMessage msg, long delay) {
+  final public OTMessage postMessage(OTMessage msg, long delay) {
     try {
       if (delay <= 0)
         this.readyList.put(msg);
@@ -41,43 +41,30 @@ final class OTMessagePool {
     }
   }
 
-  final CCReturn<?> evalMessage(OTThread currentThread, OTNode target,
-      String msgName, Object[] args) {
-    OTMessage thisMsg = currentThread.currentMsg;
+  final CCReturn<?> evalMessage(OTThread currentThread, OTMessage msg) {
+    CCReturn<?> ret = null;
 
-    if (thisMsg.curDepth <= 0) {
-      return CCReturn.error("message depth overflow");
+    if (msg.curDepth < 0) {
+      ret = CCReturn.error("message depth overflow");
     }
-    
-    if (target == null) {
-      return CCReturn.error("target not found");
-    }
-
-    currentThread.pushEvalMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, OT.$getDebugInfo(thisMsg, 5, args), args);
-
-    try {
-      return target.$eval(currentThread, args);
-    }
-    catch (Exception e) {
-      OT.$error(e.toString());
-      return CCReturn.error().setE(e);
-    }
-    finally {
-      currentThread.popMessage();
-    }
-  }
-
-  final OTMessage postMessage(OTThread currentThread, long delayms,
-      OTNode target, String msgName, Object[] args) {
-    OTMessage thisMsg = currentThread.currentMsg;
-
-    if (thisMsg.curDepth <= 0) {
-      OT.$error("message depth overflow");
+    else if (msg.target == null) {
+      OT.$error("target not found");
       return null;
     }
+    else {
+      currentThread.pushEvalMessage(msg);
 
-    return this.putMessage(new OTMessage(thisMsg.paramMap, msgName, target, thisMsg.target,
-        thisMsg.curDepth - 1, OT.$getDebugInfo(thisMsg, 5, args), args), delayms);
+      try {
+        ret = msg.target.$eval(currentThread, msg.args);
+      }
+      catch (Exception e) {
+        ret = CCReturn.error("eval error").setE(e);
+      }
+      finally {
+        currentThread.popMessage();
+      }
+    }
+
+    return ret;
   }
 }

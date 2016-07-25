@@ -19,7 +19,8 @@ final class OTThreadMessage extends OTThread {
         synchronized (this) {
           this.lastStartMS = OT.$currentTimeMillis();
         }
-        msg.$eval(this);
+
+        OT.msgPool.evalMessage(this, msg);
       }
       catch (InterruptedException e) {
       }
