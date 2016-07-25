@@ -3,8 +3,8 @@ package org.companyos.dev.cos_common.object_tree;
 import org.companyos.dev.cos_common.CCReturn;
 
 final class OTMessagePool {
-  final private static int ReadyMsgMaxSize = 30000;
-  final private static int DelayMsgMaxSize = 20000;
+  final private static int ReadyMsgMaxSize = 500000;
+  final private static int DelayMsgMaxSize = 200000;
 
 
   final private OTMessageDelayPool delayPool;
