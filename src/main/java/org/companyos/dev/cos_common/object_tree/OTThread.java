@@ -11,7 +11,7 @@ class OTThread extends Thread {
   private boolean runningStatus = false;
   boolean lastEvalSuccess = true;
   private final OTMessageStack msgStack = new OTMessageStack();
-  OTMessageBase currentMsg = null;
+  OTMessage currentMsg = null;
 
   protected OTThread() {
 
@@ -48,7 +48,7 @@ class OTThread extends Thread {
   
   public static OTThread startMessageService() {
     OTThread thObj = new OTThread();
-    thObj.pushMessage(OTMessageBase.getRootMessage());
+    thObj.pushMessage(OTMessage.getRootMessage());
     ThreadLocal.set(thObj);
     return thObj;
   }
@@ -57,13 +57,13 @@ class OTThread extends Thread {
     ThreadLocal.remove();
   }
 
-  final OTMessageBase pushEvalMessage(CCLightMap paramMap, String msgName, OTNode target,
+  final OTMessage pushEvalMessage(CCLightMap paramMap, String msgName, OTNode target,
                                       OTNode sender, int curDepth, String debug, Object[] args) {
     return this.currentMsg = this.msgStack.push(paramMap, msgName, target, sender,
         curDepth, debug, args);
   }
 
-  final synchronized void pushMessage(OTMessageBase msg) {
+  final synchronized void pushMessage(OTMessage msg) {
     this.currentMsg = this.msgStack.push(msg.paramMap, msg.msgName, msg.target, msg.sender,
         msg.curDepth, msg.debug, msg.args);
   }

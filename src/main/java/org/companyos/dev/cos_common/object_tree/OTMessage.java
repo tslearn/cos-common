@@ -9,19 +9,22 @@ enum OTMessageStatus {
   None, Success, Error
 }
 
-class OTMessageBase {
+
+final public class OTMessage {
   Object[] args;
-	CCLightMap paramMap;
+  CCLightMap paramMap;
   String msgName;
   OTNode target;
   OTNode sender;
   int curDepth;
   String debug;
+  volatile private OTMessageStatus status;
+  volatile private LinkedList<OTCallback> callbackPool;
 
-  private static volatile OTMessageBase RootMessage = null;
+  private static volatile OTMessage RootMessage = null;
 
-  public OTMessageBase(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
-      int curDepth, String debug, Object[] args) {
+  public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
+      String debug, Object[] args) {
     this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;
@@ -29,11 +32,13 @@ class OTMessageBase {
     this.curDepth = curDepth;
     this.debug = debug;
     this.args = args;
+    this.status = OTMessageStatus.None;
   }
 
-  final static OTMessageBase getRootMessage() {
+
+  final static OTMessage getRootMessage() {
     if (RootMessage == null) {
-      RootMessage = new OTMessageBase(null, OTConfig.RootMessageName, new OTNode(), new OTNode(),
+      RootMessage = new OTMessage(null, OTConfig.RootMessageName, new OTNode(), new OTNode(),
           OTConfig.DefaultMessageMaxDepth, "", new Object[0]);
     }
     return RootMessage;
@@ -44,17 +49,6 @@ class OTMessageBase {
       return this.debug;
     else
       return "OTRuntime debug mode is disabled !!!";
-  }
-}
-
-final public class OTMessage extends OTMessageBase {
-  volatile private OTMessageStatus status;
-  volatile private LinkedList<OTCallback> callbackPool;
-
-  public OTMessage(CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
-      String debug, Object[] args) {
-    super(paramMap, msgName, target, sender, curDepth, debug, args);
-    this.status = OTMessageStatus.None;
   }
 
   CCReturn<?> $eval(OTThread currentThread) {

@@ -4,25 +4,25 @@ import org.companyos.dev.cos_common.CCLightMap;
 
 public class OTMessageStack {
   private int count = 0;
-  private OTMessageBase[] msgPool = new OTMessageBase[0];
+  private OTMessage[] msgPool = new OTMessage[0];
 
-  final OTMessageBase push(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
+  final OTMessage push(CCLightMap paramMap, String msgName, OTNode target, OTNode sender,
                            int curDepth, String debug, Object[] args) {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.count == this.msgPool.length) {
-      OTMessageBase[] newPool = new OTMessageBase[this.count
+      OTMessage[] newPool = new OTMessage[this.count
           + OTConfig.DefaultMessageMaxDepth];
 
       System.arraycopy(this.msgPool, 0, newPool, 0, this.msgPool.length);
 
       for (int i = newPool.length - 1; i >= this.count; i--) {
-        newPool[i] = new OTMessageBase(null, null, null, null, 0, null, null);
+        newPool[i] = new OTMessage(null, null, null, null, 0, null, null);
       }
 
       this.msgPool = newPool;
     }
 
-    OTMessageBase ret = this.msgPool[count++];
+    OTMessage ret = this.msgPool[count++];
     ret.paramMap = paramMap;
     ret.msgName = msgName;
     ret.target = target;
@@ -33,15 +33,15 @@ public class OTMessageStack {
     return ret;
   }
 
-  final OTMessageBase popAndReturnHeader() {
+  final OTMessage popAndReturnHeader() {
     if (this.count % OTConfig.DefaultMessageMaxDepth == 0
         && this.msgPool.length - this.count >= 2 * OTConfig.DefaultMessageMaxDepth) {
-      OTMessageBase[] newPool = new OTMessageBase[this.count
+      OTMessage[] newPool = new OTMessage[this.count
           - OTConfig.DefaultMessageMaxDepth];
       System.arraycopy(this.msgPool, 0, newPool, 0, newPool.length);
       this.msgPool = newPool;
     }
-    OTMessageBase removeItem = msgPool[--this.count];
+    OTMessage removeItem = msgPool[--this.count];
     removeItem.target = null;
     removeItem.sender = null;
     return this.count > 0 ? msgPool[this.count - 1] : null;

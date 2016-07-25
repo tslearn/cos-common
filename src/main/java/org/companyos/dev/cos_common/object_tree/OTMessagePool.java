@@ -43,7 +43,7 @@ final class OTMessagePool {
 
   final CCReturn<?> evalMessage(OTThread currentThread, OTNode target,
       String msgName, Object[] args) {
-    OTMessageBase thisMsg = currentThread.currentMsg;
+    OTMessage thisMsg = currentThread.currentMsg;
 
     if (thisMsg.curDepth <= 0) {
       return CCReturn.error("message depth overflow");
@@ -70,7 +70,7 @@ final class OTMessagePool {
 
   final OTMessage postMessage(OTThread currentThread, long delayms,
       OTNode target, String msgName, Object[] args) {
-    OTMessageBase thisMsg = currentThread.currentMsg;
+    OTMessage thisMsg = currentThread.currentMsg;
 
     if (thisMsg.curDepth <= 0) {
       OT.$error("message depth overflow");

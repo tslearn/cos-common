@@ -273,7 +273,7 @@ public class OT {
     if (otThread == null)
       return outString;
 
-    OTMessageBase msg = otThread.currentMsg;
+    OTMessage msg = otThread.currentMsg;
     OTNode target = (msg != null) ? msg.target : null;
     String path = "System";
     if (target != null) {
@@ -409,7 +409,7 @@ public class OT {
     return OT.currTimeMS.get();
   }
 
-  final static String $getDebugInfo(OTMessageBase thisMsg, int stackDepth,  Object[] args) {
+  final static String $getDebugInfo(OTMessage thisMsg, int stackDepth, Object[] args) {
     if (OT.isDebug) {
       StackTraceElement callerStacks[] = Thread.currentThread().getStackTrace();
       StringBuilder sb = new StringBuilder();
