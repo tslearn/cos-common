@@ -23,22 +23,32 @@ public class OTWebSocketServer {
     this.port = port;
   }
   
-  public boolean start() {
+  public boolean start(
+      int webSocketThreadPoolSize,
+      String keystorePath,
+      String keystorePassword,
+      String keyManagerPassword) {
     try {
       QueuedThreadPool threadPool = new QueuedThreadPool();
-      threadPool.setMaxThreads(OTConfig.JettyWebSocketThreadPoolSize);
+      threadPool.setMaxThreads(webSocketThreadPoolSize);
 
       this.websocketServer = new Server(threadPool);
+      ServerConnector connector = null;
 
-      // connector configuration
-      SslContextFactory sslContextFactory = new SslContextFactory();
-      sslContextFactory.setKeyStoreResource(Resource.newClassPathResource(OTConfig.KeyStorePath));
-      sslContextFactory.setKeyStorePassword(OTConfig.KeyStorePassword);
-      sslContextFactory.setKeyManagerPassword(OTConfig.KeyManagerPassword);
-      SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString());
-      HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(new HttpConfiguration());
+      if (keystorePath != null && keystorePath.length() > 0) {
+        // connector configuration
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource(keystorePath));
+        sslContextFactory.setKeyStorePassword(keystorePassword);
+        sslContextFactory.setKeyManagerPassword(keyManagerPassword);
+        SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString());
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(new HttpConfiguration());
+        connector = new ServerConnector(this.websocketServer, sslConnectionFactory, httpConnectionFactory);
+      }
+      else {
+        connector = new ServerConnector(this.websocketServer);
+      }
 
-      ServerConnector connector = new ServerConnector(this.websocketServer, sslConnectionFactory, httpConnectionFactory);
       if (this.hostname != null) {
         connector.setHost(this.hostname);
       }

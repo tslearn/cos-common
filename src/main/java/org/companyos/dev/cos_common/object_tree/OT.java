@@ -89,8 +89,6 @@ public class OT {
     return msgPool.postMessage($compileMessage(OTMessageType.WebSocket, callback, security, OT.getNodeByPath(target), msgName, args), 0);
   }
 
-
-
   private static CCReturn<?> evalMsg(OTMessage msg) {
     boolean needStopMessageService = false;
     OTThread th = OTThread.currentThread();
@@ -154,7 +152,15 @@ public class OT {
     log.error($getCallStackLog(msg, isLogMessageStack, true));
   }
 
-  synchronized public static OTNode start(String host, int port, Class<?> rootNodeCls, boolean isDebug) {
+  synchronized public static OTNode start(
+      String host,
+      int port,
+      Class<?> rootNodeCls,
+      boolean isDebug,
+      int webSocketThreadPoolSize,
+      String keystorePath,
+      String keystorePassword,
+      String keyManagerPassword) {
     boolean isStartMessageService  = false;
     try {
       if (!OT.isStart) {
@@ -177,7 +183,11 @@ public class OT {
         OT.sysThread = new OTThreadSystem();
         OT.sysThread.turnOn();
 
-        if (OT.websocketServer.start()) {
+        if (OT.websocketServer.start(
+            webSocketThreadPoolSize,
+            keystorePath,
+            keystorePassword,
+            keyManagerPassword)) {
           OT.info("OT system is start successful!");
           OT.isStart = true;
           return OT.rootNode;
