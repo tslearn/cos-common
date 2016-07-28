@@ -44,25 +44,24 @@ final class OTMessagePool {
   final CCReturn<?> evalMessage(OTThread currentThread, OTMessage msg) {
     CCReturn<?> ret = null;
 
-    if (msg.curDepth < 0) {
-      ret = CCReturn.error("message depth overflow");
-    }
-    else if (msg.target == null) {
-      OT.$error("target not found");
-      return null;
-    }
-    else {
-      currentThread.pushEvalMessage(msg);
+    currentThread.pushEvalMessage(msg);
 
-      try {
+    try {
+      if (msg.curDepth < 0) {
+        ret = CCReturn.error("message depth overflow");
+      }
+      else if (msg.target == null) {
+        ret = CCReturn.error("target not found");
+      }
+      else {
         ret = msg.target.$eval(currentThread, msg.args);
       }
-      catch (Exception e) {
-        ret = CCReturn.error("eval error").setE(e);
-      }
-      finally {
-        currentThread.popMessage();
-      }
+    }
+    catch (Exception e) {
+      ret = CCReturn.error("eval error").setE(e);
+    }
+    finally {
+      currentThread.popMessage();
     }
 
     switch (msg.type) {
