@@ -4,9 +4,6 @@ import org.companyos.dev.cos_common.object_tree.OT;
 import org.companyos.dev.cos_common.object_tree.OTCallback;
 import org.companyos.dev.cos_common.object_tree.OTNode;
 
-/**
- * Created by tianshuo on 16/7/22.
- */
 
 class OTTest extends OTNode {
   public String onTest(String name) {
