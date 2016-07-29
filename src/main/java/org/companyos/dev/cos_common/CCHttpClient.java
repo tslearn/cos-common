@@ -17,13 +17,13 @@ public class CCHttpClient {
   private static PoolingHttpClientConnectionManager connectionManager = null;
   private static HttpClientBuilder httpBulder = null;
   private static RequestConfig requestConfig = null;
-  private static int MAXCONNECTION = 1000;
+  private static int MAXCONNECTION = 2000;
 
   static {
     requestConfig = RequestConfig.custom()
-        .setSocketTimeout(5000)
-        .setConnectTimeout(5000)
-        .setConnectionRequestTimeout(5000)
+        .setSocketTimeout(10000)
+        .setConnectTimeout(10000)
+        .setConnectionRequestTimeout(10000)
         .build();
 
     connectionManager = new PoolingHttpClientConnectionManager();

@@ -112,7 +112,26 @@ public class OTNode {
         return (CCReturn<?>) ret;
       }
       catch (Exception e) {
-          return CCReturn.success(ret);
+        if (ret instanceof Boolean)
+          return CCReturn.<Boolean>success((Boolean)ret);
+        else if (ret instanceof String)
+          return CCReturn.<String>success((String)ret);
+        else if (ret instanceof Integer)
+          return CCReturn.<Integer>success((Integer)ret);
+        else if (ret instanceof Long)
+          return CCReturn.<Long>success((Long)ret);
+        else if (ret instanceof Character)
+          return CCReturn.<Character>success((Character)ret);
+        else if (ret instanceof Byte)
+          return CCReturn.<Byte>success((Byte)ret);
+        else if (ret instanceof Short)
+          return CCReturn.<Short>success((Short)ret);
+        else if (ret instanceof Float)
+          return CCReturn.<Float>success((Float)ret);
+        else if (ret instanceof Double)
+          return CCReturn.<Double>success((Double)ret);
+        else
+          return CCReturn.<Object>success(ret);
       }
     }
     catch (InvocationTargetException e) {

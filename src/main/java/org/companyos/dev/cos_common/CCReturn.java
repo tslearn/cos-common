@@ -67,12 +67,11 @@ public class CCReturn<T> {
     
     public JSONObject toJSON() {
     	String e = this.exception == null ? null : this.exception.toString();
-    	String v = this.getV() == null ? null : this.getV().toString();
 
       return new JSONObject()
             .put("s", this.success)
             .put("m", this.message)
             .put("e", e)
-            .put("v", v);
+            .put("v", this.getV());
     }
 }
