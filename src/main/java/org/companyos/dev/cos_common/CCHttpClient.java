@@ -52,8 +52,17 @@ public class CCHttpClient {
     return reqMethod;
   }
 
+  public static CCReturn<String> post(String path, String encoding) {
+    return post(path, encoding, null);
+  }
+
+
   public static CCReturn<String> post(String path, String encoding, BasicNameValuePair[] params) {
     try {
+      if (params == null) {
+        params = new BasicNameValuePair[0];
+      }
+
       HttpClient client = CCHttpClient.getConnection();
       HttpUriRequest post = CCHttpClient.getRequestMethod(params, path, "post");
 
@@ -73,8 +82,16 @@ public class CCHttpClient {
     }
   }
 
+  public static CCReturn<String> get(String path, String encoding){
+    return get(path, encoding, null);
+  }
+
   public static CCReturn<String> get(String path, String encoding, BasicNameValuePair[] params){
     try {
+      if (params == null) {
+        params = new BasicNameValuePair[0];
+      }
+
       HttpClient client = CCHttpClient.getConnection();
       HttpUriRequest post = CCHttpClient.getRequestMethod(params, path, "get");
 
