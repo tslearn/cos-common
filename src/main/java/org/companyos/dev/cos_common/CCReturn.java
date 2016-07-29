@@ -67,7 +67,6 @@ public class CCReturn<T> {
     
     public JSONObject toJSON() {
     	String e = this.exception == null ? null : this.exception.toString();
-
       return new JSONObject()
             .put("s", this.success)
             .put("m", this.message)
