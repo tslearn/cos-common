@@ -44,7 +44,6 @@ public class CCReturn<T> {
 	}
     
     public CCReturn<T>  setE(Exception exception) {
-    	exception.printStackTrace();
         this.exception = exception;
         return this;
     }
