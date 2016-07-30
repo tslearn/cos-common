@@ -316,23 +316,30 @@ public class OT {
   }
 
   static synchronized boolean $registerWebSocketSecurity(String security, OTWebSocketHandler wsHandler) {
+    OT.info("register security " + security);
     return websockSecurityHash.putIfAbsent(security, wsHandler) == null;
   }
 
   static synchronized boolean $unregisterWebSocketSecurity(String security) {
+    OT.info("unregister security " + security);
     return websockSecurityHash.remove(security) != null;
   }
 
   public static synchronized boolean $registerWebSocketUser(String security, Long uid) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
 
+
     if (wsHandler == null)
       return false;
+
+    OT.info("register uid " + uid);
+    wsHandler.setUid(uid);
 
     return websockUserHash.putIfAbsent(uid, wsHandler) == null;
   }
 
   static synchronized boolean $unregisterWebSocketUser(Long uid) {
+    OT.info("unregister uid " + uid);
     return websockUserHash.remove(uid) != null;
   }
 

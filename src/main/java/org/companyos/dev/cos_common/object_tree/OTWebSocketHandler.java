@@ -24,7 +24,17 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private String security = UUID.randomUUID().toString();
   private long uid = 0;
 
-  public boolean response(long callback, CCReturn<?> ret) {
+  boolean setUid(long uid) {
+    if (this.uid == 0) {
+      this.uid = uid;
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  boolean response(long callback, CCReturn<?> ret) {
     JSONObject r = null;
 
     if (ret == null) {
@@ -39,7 +49,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
     return send(r.toString());
   }
 
-  public boolean send(CCReturn<?> ret) {
+  boolean send(CCReturn<?> ret) {
     JSONObject r = ret.toJSON();
     r.put("c", 0);
     r.put("t", ServerBack);
@@ -107,8 +117,6 @@ public class OTWebSocketHandler extends WebSocketHandler {
     }
 
     OT.postMsgWithWebSocket(callback, security, uid, target, msg, passArgs);
-
-    return;
   }
 
   @Override
