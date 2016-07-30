@@ -22,6 +22,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
 
   private Session session;
   private String security = UUID.randomUUID().toString();
+  private long uid = 0;
 
   public boolean response(long callback, CCReturn<?> ret) {
     JSONObject r = null;
@@ -64,13 +65,14 @@ public class OTWebSocketHandler extends WebSocketHandler {
   @OnWebSocketConnect
   public void onConnect(Session session) {
     this.session = session;
-    OT.$registerWebSocketHandler(security, this);
+    OT.$registerWebSocketSecurity(security, this);
     OT.info("websock connected! security: " + this.security, true);
   }
 
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.$unregisterWebSocketHandler(security);
+    OT.$unregisterWebSocketSecurity(security);
+    OT.$unregisterWebSocketUser(uid);
     this.session = null;
     OT.info("disconnected! security: " + this.security);
   }
@@ -104,7 +106,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
       passArgs[i] = args.get(i);
     }
 
-    OT.postMsgWithWebSocket(callback, security, target, msg, passArgs);
+    OT.postMsgWithWebSocket(callback, security, uid, target, msg, passArgs);
 
     return;
   }
