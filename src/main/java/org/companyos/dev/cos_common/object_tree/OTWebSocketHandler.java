@@ -25,7 +25,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private long uid = 0;
 
   boolean setUid(long uid) {
-    if (this.uid == 0) {
+    if (this.uid == 0 || uid == 0) {
       this.uid = uid;
       return true;
     }
