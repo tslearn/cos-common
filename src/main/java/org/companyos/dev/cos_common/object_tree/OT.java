@@ -329,7 +329,17 @@ public class OT {
 
   static synchronized boolean $unregisterWebSocketSecurity(String security) {
     OT.info("unregister security " + security);
-    return websockSecurityHash.remove(security) != null;
+    OTWebSocketHandler wsHandler =  websockSecurityHash.remove(security);
+
+    if (wsHandler != null) {
+      if (wsHandler.getUid() > 0)
+        OT.$unregisterWebSocketUser(wsHandler.getUid());
+      wsHandler.close();
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 
   public static synchronized boolean $registerWebSocketUser(String security, Long uid) {

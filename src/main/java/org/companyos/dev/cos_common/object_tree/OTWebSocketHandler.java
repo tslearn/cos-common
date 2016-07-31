@@ -24,6 +24,10 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private String security = UUID.randomUUID().toString();
   private long uid = 0;
 
+  long getUid() {
+    return this.uid;
+  }
+
   boolean setUid(long uid) {
     if (this.uid == 0 || uid == 0) {
       this.uid = uid;
