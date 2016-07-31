@@ -23,8 +23,7 @@ public class OT {
   private static ConcurrentHashMap<String, OTWebSocketHandler> websockSecurityHash;
   private static ConcurrentHashMap<Long, OTWebSocketHandler> websockUserHash;
 
-
-  public final static boolean sendWebSocketMessage(String security, CCReturn<?> obj) {
+  public final static boolean sendWebSocketMessage(String security, Object obj) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
     if (wsHandler != null)
       return wsHandler.send("OTServer:send", obj);
@@ -32,7 +31,7 @@ public class OT {
       return false;
   }
 
-  public final static boolean sendWebSocketMessage(Long uid, CCReturn<?> obj) {
+  public final static boolean sendWebSocketMessage(Long uid, Object obj) {
     OTWebSocketHandler wsHandler = websockUserHash.get(uid);
     if (wsHandler != null)
       return wsHandler.send("OTServer:send", obj);
@@ -342,6 +341,10 @@ public class OT {
     }
   }
 
+  static public boolean $isWebSocketSecurityRegister(String security) {
+    return websockSecurityHash.containsKey(security);
+  }
+
   public static synchronized boolean $registerWebSocketUser(String security, Long uid) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
 
@@ -365,6 +368,10 @@ public class OT {
     wsHandler.setUid(0);
 
     return true;
+  }
+
+  static public boolean $isWebSocketUserRegister(long uid) {
+    return websockUserHash.containsKey(uid);
   }
 
   final static void $error(String msg) {
