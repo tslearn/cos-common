@@ -23,18 +23,18 @@ public class OT {
   private static ConcurrentHashMap<String, OTWebSocketHandler> websockSecurityHash;
   private static ConcurrentHashMap<Long, OTWebSocketHandler> websockUserHash;
 
-  public final static boolean sendWebSocketMessage(String security, Object obj) {
+  public final static boolean sendWebSocketMessage(String security, String msg, Object obj) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
     if (wsHandler != null)
-      return wsHandler.send("OTServer:send", obj);
+      return wsHandler.send(msg, obj);
     else
       return false;
   }
 
-  public final static boolean sendWebSocketMessage(Long uid, Object obj) {
+  public final static boolean sendWebSocketMessage(Long uid, String msg, Object obj) {
     OTWebSocketHandler wsHandler = websockUserHash.get(uid);
     if (wsHandler != null)
-      return wsHandler.send("OTServer:send", obj);
+      return wsHandler.send(msg, obj);
     else
       return false;
   }
