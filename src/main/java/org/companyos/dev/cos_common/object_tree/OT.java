@@ -348,12 +348,14 @@ public class OT {
   public static synchronized boolean $registerWebSocketUser(String security, Long uid) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
 
-
     if (wsHandler == null)
       return false;
 
-    OT.info("register uid " + uid);
+    if (websockUserHash.containsKey(uid))
+      return false;
+
     wsHandler.setUid(uid);
+    OT.info("register uid " + uid);
 
     return websockUserHash.putIfAbsent(uid, wsHandler) == null;
   }
@@ -364,9 +366,8 @@ public class OT {
     if (wsHandler == null)
       return false;
 
-    OT.info("unregister uid " + uid);
     wsHandler.setUid(0);
-
+    OT.info("unregister uid " + uid);
     return true;
   }
 
