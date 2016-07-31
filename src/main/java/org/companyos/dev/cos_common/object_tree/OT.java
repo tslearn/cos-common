@@ -23,6 +23,22 @@ public class OT {
   private static ConcurrentHashMap<String, OTWebSocketHandler> websockSecurityHash;
   private static ConcurrentHashMap<Long, OTWebSocketHandler> websockUserHash;
 
+  public final static String getIpBySecurity(String security) {
+    OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
+    if (wsHandler == null)
+      return null;
+    else
+      return wsHandler.getIp();
+  }
+
+  public final static String getIpByUid(Long uid) {
+    OTWebSocketHandler wsHandler = websockUserHash.get(uid);
+    if (wsHandler == null)
+      return null;
+    else
+      return wsHandler.getIp();
+  }
+
   public final static boolean sendWebSocketMessage(String security, String msg, Object obj) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
     if (wsHandler != null)

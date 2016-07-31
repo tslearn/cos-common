@@ -23,6 +23,11 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private Session session;
   private String security = UUID.randomUUID().toString();
   private long uid = 0;
+  private String ip = null;
+
+  String getIp() {
+    return this.ip;
+  }
 
   long getUid() {
     return this.uid;
@@ -80,6 +85,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
 
   @OnWebSocketConnect
   public void onConnect(Session session) {
+    this.ip = session.getRemoteAddress().getHostName().toString();
     this.session = session;
     OT.$registerWebSocketSecurity(security, this);
     this.send("WebSocket:open", security);
