@@ -89,7 +89,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
 
   @OnWebSocketError
   public void onError(Throwable t) {
-
+    OT.warn(t.toString());
   }
 
   @OnWebSocketMessage
