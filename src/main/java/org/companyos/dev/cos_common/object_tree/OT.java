@@ -327,7 +327,7 @@ public class OT {
     return websockSecurityHash.putIfAbsent(security, wsHandler) == null;
   }
 
-  static synchronized boolean $unregisterWebSocketSecurity(String security) {
+  static public synchronized boolean $unregisterWebSocketSecurity(String security) {
     OT.info("unregister security " + security);
     OTWebSocketHandler wsHandler =  websockSecurityHash.remove(security);
 
