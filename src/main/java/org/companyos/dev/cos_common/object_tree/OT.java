@@ -27,7 +27,7 @@ public class OT {
   public final static boolean sendWebSocketMessage(String security, CCReturn<?> obj) {
     OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
     if (wsHandler != null)
-      return wsHandler.send(obj);
+      return wsHandler.send("OTServer:send", obj);
     else
       return false;
   }
@@ -35,7 +35,7 @@ public class OT {
   public final static boolean sendWebSocketMessage(Long uid, CCReturn<?> obj) {
     OTWebSocketHandler wsHandler = websockUserHash.get(uid);
     if (wsHandler != null)
-      return wsHandler.send(obj);
+      return wsHandler.send("OTServer:send", obj);
     else
       return false;
   }

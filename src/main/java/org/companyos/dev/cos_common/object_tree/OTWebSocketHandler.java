@@ -46,17 +46,19 @@ public class OTWebSocketHandler extends WebSocketHandler {
 
     r.put("c", callback);
     r.put("t", ClientBack);
-    return send(r.toString());
+    return _send(r.toString());
   }
 
-  boolean send(CCReturn<?> ret) {
-    JSONObject r = ret.toJSON();
+  boolean send(String message, Object value) {
+    JSONObject r = new JSONObject();
     r.put("c", 0);
     r.put("t", ServerBack);
-    return send(r.toString());
+    r.put("m", message);
+    r.put("v", value);
+    return _send(r.toString());
   }
 
-  private synchronized boolean send(String text) {
+  private  boolean _send(String text) {
     OT.info("Send back to client: " + text);
     try {
       this.session.getRemote().sendString(text);
@@ -76,7 +78,8 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onConnect(Session session) {
     this.session = session;
     OT.$registerWebSocketSecurity(security, this);
-    OT.info("websock connected! security: " + this.security, true);
+    this.send("WebSocket:open", security);
+    OT.info("WebSocket connected! security: " + this.security, true);
   }
 
   @OnWebSocketClose
@@ -101,7 +104,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
     long callback = client.getLong("c");
 
     if (callback <= 0) {
-      this.send(CCReturn.error("OT server message callback error: [" + callback + "]"));
+      this.send("OTServer:error", "OT server message callback error: [" + callback + "]");
       return;
     }
 
