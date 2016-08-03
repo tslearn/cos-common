@@ -63,12 +63,12 @@ public class OT {
       return false;
   }
 
-  final public static OTNode getNodeByPath(String path) {
+  final public static <T extends OTNode> T getNodeByPath(String path) {
     if (path != null && path.startsWith(OTConfig.STRootName)) {
       OTNode ret = OT.rootNode;
 
-      if (path.length() == 1) {
-        return ret;
+      if (OTConfig.STRootName.equals(path)) {
+        return (T) ret;
       }
       else {
         String[] nodes = path.trim().split("\\.");
@@ -76,7 +76,7 @@ public class OT {
         for (int i = 1; ret != null && i < nodes.length; i++) {
           ret = ret.$getChild(nodes[i]);
         }
-        return ret;
+        return (T) ret;
       }
     }
     else {
