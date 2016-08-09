@@ -126,7 +126,11 @@ public class OTWebSocketHandler extends WebSocketHandler {
     Object[] passArgs = new Object[args.length()];
 
     for (int i = 0; i < args.length(); i++) {
-      passArgs[i] = args.get(i);
+      Object v = args.get(i);
+      if (v instanceof Integer)
+        passArgs[i] = Long.parseLong(v.toString());
+      else
+        passArgs[i] = v;
     }
 
     OT.postMsgWithWebSocket(callback, security, uid, target, msg, passArgs);
