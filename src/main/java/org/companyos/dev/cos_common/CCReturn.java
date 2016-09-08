@@ -7,17 +7,21 @@ import org.json.JSONObject;
  * Created by tianshuo on 16/7/13.
  */
 public class CCReturn<T> {
-    private int code;
+    private int status;
     private String message;
     private T value;
     private Exception exception;
 
-    private CCReturn(int code) {
-        this.code = code;
+    private CCReturn(int status) {
+        this.status = status;
     }
 
     public boolean isSuccess() {
-        return this.code == 0;
+        return this.status == 0;
+    }
+
+    public int getStatus() {
+      return this.status;
     }
 
     public T getV() {
@@ -68,7 +72,7 @@ public class CCReturn<T> {
     public JSONObject toJSON() {
     	String e = this.exception == null ? null : this.exception.toString();
       return new JSONObject()
-            .put("s", this.code)
+            .put("s", this.status)
             .put("m", this.message)
             .put("e", e)
             .put("v", this.getV());
