@@ -2,6 +2,8 @@ package org.companyos.dev.cos_common.object_tree;
 
 import java.util.UUID;
 
+import org.companyos.dev.cos_common.CCError;
+import org.companyos.dev.cos_common.CCErrorManager;
 import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -56,6 +58,11 @@ public class OTWebSocketHandler extends WebSocketHandler {
 
     r.put("c", callback);
     r.put("t", ClientBack);
+    if (!ret.isSuccess()) {
+      if (ret.getM() == null) {
+        r.put("m", CCErrorManager.getErrorByCode(ret.getStatus()).getMessage());
+      }
+    }
     return _send(r.toString());
   }
 
