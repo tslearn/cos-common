@@ -1,6 +1,8 @@
 package org.companyos.dev.cos_common;
 
 import org.companyos.dev.cos_common.object_tree.OT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,7 +13,10 @@ import java.util.Hashtable;
  * Created by tianshuo on 16/9/8.
  */
 public class CCErrorManager {
-  private final static Hashtable<Long, CCError> CodeHash = new Hashtable();
+  private static final Logger log
+    = LoggerFactory.getLogger(CCErrorManager.class);
+
+  private final static Hashtable<Integer, CCError> CodeHash = new Hashtable();
   private final static Hashtable<String, CCError> MessageHash = new Hashtable();
   private final static Hashtable<Integer, Class<?>> ClassGroupIdHash = new Hashtable();
 
@@ -19,7 +24,7 @@ public class CCErrorManager {
     return MessageHash.get(message);
   }
 
-  public final static CCError getErrorByCode(int code) {
+  public final static CCError getErrorByCode(Integer code) {
     return CodeHash.get(code);
   }
 
@@ -32,19 +37,20 @@ public class CCErrorManager {
       classErrorGroupId = classErrorGroupIdField.getInt(null);
     }
     catch (NoSuchFieldException e) {
-      new Error("Error: " + klass.getName() +
+      log.error("Error: " + klass.getName() +
         " add to CCErrorManager must define static int CCErrorGroupId");
       return;
     }
     catch (IllegalAccessException e) {
-      new Error("Error: " + klass.getName() +
+      log.error("Error: " + klass.getName() +
         " add to CCErrorManager must define static int CCErrorGroupId");
       return;
     }
 
-    if (classErrorGroupId <= 0) {
-      new Error("Error: " + klass.getName() +
-        " static attribute CCErrorGroupId must be large than 0");
+    if (classErrorGroupId <= 0 || classErrorGroupId >= 32768) {
+      log.error("Error: " + klass.getName() +
+        " static attribute CCErrorGroupId must be large than 0 and small than 32768");
+      return;
     }
 
     // Deal the CCErrorGroupId conflict
@@ -52,13 +58,14 @@ public class CCErrorManager {
       Class<?> registerClass = ClassGroupIdHash.get(classErrorGroupId);
 
       if (registerClass.getCanonicalName().equals(klass.getCanonicalName())) {
-        new Error("Error: " + klass.getName() +
+        log.error("Error: " + klass.getName() +
           " add to CCErrorManager twice");
       }
       else {
-        new Error("Error: " + klass.getName() +
+        log.error("Error: " + klass.getName() +
           " CCErrorGroupId is been registered by " + registerClass.getCanonicalName());
       }
+      return;
     }
     else {
       ClassGroupIdHash.put(classErrorGroupId, klass);
@@ -76,31 +83,46 @@ public class CCErrorManager {
         if (!"CodeHash".equals(error.getName()) && !"MessageHash".equals(error.getName())) {
           try {
             Object errorObj = error.get(null);
-            Field code = errorObj.getClass().getDeclaredField("code");
-            code.setAccessible(true);
-            Field message = errorObj.getClass().getDeclaredField("message");
-            message.setAccessible(true);
+            if (errorObj instanceof  CCError) {
+              Field innerCodeField = errorObj.getClass().getDeclaredField("innerCode");
+              innerCodeField.setAccessible(true);
+              int innerCode = innerCodeField.getInt(errorObj);
 
-            Long iCode = code.getLong(errorObj);
-            String sMessage = message.get(errorObj).toString();
+              if (innerCode <= 0 || innerCode >= 32768) {
+                log.error("Error: " + klass.getName() + error.getName() +
+                  " inner code must be large than 0 and small than 32768");
+                continue;
+              }
 
-            if (CodeHash.containsKey(iCode)) {
-              new Error(klass.getCanonicalName() + "CCError code confilct, code: " + iCode);
-              continue;
+
+              Field codeField = errorObj.getClass().getDeclaredField("code");
+              codeField.setAccessible(true);
+              codeField.setInt(errorObj, classErrorGroupId << 16 | innerCode);
+
+
+              Field message = errorObj.getClass().getDeclaredField("message");
+              message.setAccessible(true);
+
+              int iCode = codeField.getInt(errorObj);
+              String sMessage = message.get(errorObj).toString();
+
+              if (CodeHash.containsKey(iCode)) {
+                log.error(klass.getCanonicalName() + "CCError code confilct, code: " + iCode);
+                continue;
+              }
+
+              if (MessageHash.containsKey(sMessage)) {
+                log.error(klass.getCanonicalName() + "CCError message confilct, message: " + sMessage);
+                continue;
+              }
+
+
+              CodeHash.put(iCode, (CCError)errorObj);
+              MessageHash.put(sMessage, (CCError)errorObj);
             }
-
-            if (MessageHash.containsKey(sMessage)) {
-              new Error(klass.getCanonicalName() + "CCError message confilct, message: " + sMessage);
-              continue;
-            }
-
-
-            CodeHash.put(iCode, (CCError)errorObj);
-            MessageHash.put(sMessage, (CCError)errorObj);
-
           }
           catch (Throwable t) {
-            new Error(t.toString());
+            log.error(t.toString());
           }
         }
 

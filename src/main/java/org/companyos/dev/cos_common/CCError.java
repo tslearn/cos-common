@@ -3,9 +3,10 @@ package org.companyos.dev.cos_common;
 public class CCError {
   private int code;
   private String message;
+  private int innerCode;
 
   public CCError(int code, String message) {
-    this.code = code;
+    this.innerCode = code;
     this.message = message;
   }
 
