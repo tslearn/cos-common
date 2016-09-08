@@ -38,11 +38,11 @@ public class CCReturn<T> {
         return this;
     }
 
-    
+
     public Exception getE() {
         return this.exception;
 	}
-    
+
     public CCReturn<T>  setE(Exception exception) {
         this.exception = exception;
         return this;
