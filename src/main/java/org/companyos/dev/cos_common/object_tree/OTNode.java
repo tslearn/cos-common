@@ -99,7 +99,7 @@ public class OTNode {
             + currentThread.currentMsg.msgName + " Syntax not found ";
         OT.$error(errorMsg);
         currentThread.lastEvalSuccess = false;
-        return CCReturn.error(errorMsg);
+        return CCReturn.error(OTErrorDefine.OTSyntaxNotFound).setM(errorMsg);
       }
       
       currentThread.lastEvalSuccess = true;
@@ -138,13 +138,13 @@ public class OTNode {
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"
           + currentThread.currentMsg.msgName + " Excute Error, Please catch exception in the Syntax";
       currentThread.lastEvalSuccess = false;    
-      return CCReturn.error(errorMsg).setE(e);
+      return CCReturn.error(OTErrorDefine.OTSyntaxExecuteError).setM(errorMsg).setE(e);
     }
     catch (IllegalAccessException e) {
       String errorMsg = currentThread.currentMsg.target.$getPath() + ".on"
           + currentThread.currentMsg.msgName + " Access Deny ";
       currentThread.lastEvalSuccess = false;
-      return CCReturn.error(errorMsg).setE(e);
+      return CCReturn.error(OTErrorDefine.OTSyntaxAccessDeny).setM(errorMsg).setE(e);
     }
     catch (IllegalArgumentException e) {    
       String calledArgs = CCReflect.buildCallArgsString(args);
@@ -156,7 +156,7 @@ public class OTNode {
           + "\nMethodArgs: " + methodArgs;      
       
       currentThread.lastEvalSuccess = false;      
-      return CCReturn.error(errorMsg).setE(e);
+      return CCReturn.error(OTErrorDefine.OTSyntaxArgumentsNotMatch).setM(errorMsg).setE(e);
     }
   }
 

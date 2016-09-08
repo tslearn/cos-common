@@ -7,17 +7,17 @@ import org.json.JSONObject;
  * Created by tianshuo on 16/7/13.
  */
 public class CCReturn<T> {
-    private boolean success;
+    private int code;
     private String message;
     private T value;
     private Exception exception;
 
-    private CCReturn(boolean success) {
-        this.success = success;
+    private CCReturn(int code) {
+        this.code = code;
     }
 
     public boolean isSuccess() {
-        return this.success;
+        return this.code == 0;
     }
 
     public T getV() {
@@ -49,25 +49,26 @@ public class CCReturn<T> {
     }
 
     public static <E> CCReturn<E> success() {
-        return new CCReturn<>(true);
+        return new CCReturn<>(0);
     }
 
     public static <E> CCReturn<E> success(E ret) {
-        return new CCReturn<E>(true).setV(ret);
+        return new CCReturn<E>(0).setV(ret);
     }
 
-    public static <E> CCReturn<E> error() {
-        return new CCReturn<>(false);
+
+    public static <E> CCReturn<E> error(int code) {
+        return new CCReturn<E>(code);
     }
 
-    public static <E> CCReturn<E> error(String message) {
-        return new CCReturn<E>(false).setM(message);
+    public static <E> CCReturn<E> error(CCError error) {
+        return new CCReturn<E>(error.getCode());
     }
     
     public JSONObject toJSON() {
     	String e = this.exception == null ? null : this.exception.toString();
       return new JSONObject()
-            .put("s", this.success)
+            .put("s", this.code)
             .put("m", this.message)
             .put("e", e)
             .put("v", this.getV());

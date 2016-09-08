@@ -48,17 +48,17 @@ final class OTMessagePool {
 
     try {
       if (msg.curDepth < 0) {
-        ret = CCReturn.error("message depth overflow");
+        ret = CCReturn.error(OTErrorDefine.OTMessageDepthOverflow).setM("message depth overflow");
       }
       else if (msg.target == null) {
-        ret = CCReturn.error("target not found");
+        ret = CCReturn.error(OTErrorDefine.OTMessageTargetNotFound).setM("message target not found");
       }
       else {
         ret = msg.target.$eval(currentThread, msg.args);
       }
     }
     catch (Exception e) {
-      ret = CCReturn.error("eval error").setE(e);
+      ret = CCReturn.error(OTErrorDefine.OTMessageEvalError).setM("message eval error").setE(e);
     }
     finally {
       currentThread.popMessage();

@@ -14,6 +14,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 public class CCHttpClient {
+  /******* Error Define Start  *******/
+  static final int CCErrorGroupId = 2;
+  static CCError HTTPResponseError = new CCError(1, "Http response error");
+  static CCError HTTPInternalError = new CCError(2, "Http internal error");
+  static {
+    CCErrorManager.addClass(CCHttpClient.class);
+  }
+  /******* End ***********************/
+
   private static PoolingHttpClientConnectionManager connectionManager = null;
   private static HttpClientBuilder httpBulder = null;
   private static RequestConfig requestConfig = null;
@@ -74,11 +83,11 @@ public class CCHttpClient {
         System.out.println(message);
         return CCReturn.success(message);
       } else {
-        return CCReturn.error("Http Error " + response.getStatusLine().getStatusCode());
+        return CCReturn.<String>error(HTTPResponseError).setM("Http Error " + response.getStatusLine().getStatusCode());
       }
     }
     catch (Exception e) {
-      return CCReturn.error(e.toString());
+      return CCReturn.<String>error(HTTPInternalError).setM(e.toString());
     }
   }
 
@@ -102,11 +111,11 @@ public class CCHttpClient {
         String message = EntityUtils.toString(entity, encoding);
         return CCReturn.success(message);
       } else {
-        return CCReturn.error("Http Error " + response.getStatusLine().getStatusCode());
+        return CCReturn.<String>error(HTTPResponseError).setM("Http Error " + response.getStatusLine().getStatusCode());
       }
     }
     catch (Exception e) {
-      return CCReturn.error(e.toString());
+      return CCReturn.<String>error(HTTPInternalError).setM(e.toString());
     }
   }
 }
