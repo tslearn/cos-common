@@ -2,7 +2,6 @@ package org.companyos.dev.cos_common.object_tree;
 
 import java.util.UUID;
 
-import org.companyos.dev.cos_common.CCError;
 import org.companyos.dev.cos_common.CCErrorManager;
 import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
@@ -23,7 +22,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private static final long ServerBack = 2;
 
   private Session session;
-  private String security = UUID.randomUUID().toString();
+  private String wsSession = UUID.randomUUID().toString();
   private long uid = 0;
   private String ip = null;
 
@@ -95,17 +94,16 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onConnect(Session session) {
     this.ip = session.getRemoteAddress().getHostName().toString();
     this.session = session;
-    OT.$registerWebSocketSecurity(security, this);
-    this.send("WebSocket:open", security);
-    OT.info("WebSocket connected! security: " + this.security, true);
+    OT.$registerWebSocketSession(this.wsSession, this);
+    this.send("WebSocket:open", this.wsSession);
+    OT.info("WebSocket connected! session id: " + this.wsSession, true);
   }
 
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.$unregisterWebSocketSecurity(security);
-    OT.$unregisterWebSocketUser(uid);
+    OT.$unregisterWebSocketSession(this.wsSession);
     this.session = null;
-    OT.info("disconnected! security: " + this.security);
+    OT.info("disconnected! session id: " + this.wsSession);
   }
 
   @OnWebSocketError
@@ -141,7 +139,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
         passArgs[i] = v;
     }
 
-    OT.postMsgWithWebSocket(callback, security, uid, target, msg, passArgs);
+    OT.postMsgWithWebSocket(callback, this.wsSession, uid, target, msg, passArgs);
   }
 
   @Override

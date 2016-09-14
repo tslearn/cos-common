@@ -66,8 +66,8 @@ final class OTMessagePool {
 
     switch (msg.type) {
       case WebSocket:
-        if (msg.callback > 0 && msg.security != null && msg.security.length() > 0) {
-          OT.responseWebSocketMessage(msg.callback, msg.security, ret);
+        if (msg.callback > 0 && msg.wsSession != null && msg.wsSession.length() > 0) {
+          OT.responseWebSocketMessage(msg.callback, msg.wsSession, ret);
         }
         break;
       case Http:

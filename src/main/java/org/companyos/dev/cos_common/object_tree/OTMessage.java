@@ -31,7 +31,7 @@ final public class OTMessage {
 
   OTMessageType type;
   long callback;
-  String security;
+  String wsSession;
   long uid;
   Object[] args;
   CCLightMap paramMap;
@@ -44,11 +44,11 @@ final public class OTMessage {
   volatile private LinkedList<OTCallback> callbackPool;
 
 
-  public OTMessage(OTMessageType type, long callback, String security, long uid, CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(OTMessageType type, long callback, String wsSession, long uid, CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
     this.type = type;
     this.callback = callback;
-    this.security = security;
+    this.wsSession = wsSession;
     this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;

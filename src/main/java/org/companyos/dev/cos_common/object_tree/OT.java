@@ -20,43 +20,27 @@ public class OT {
   static private OTThreadSystem sysThread;
   static private OTWebSocketServer websocketServer;
   static OTMessagePool msgPool;
-  private static ConcurrentHashMap<String, OTWebSocketHandler> websockSecurityHash;
-  private static ConcurrentHashMap<Long, OTWebSocketHandler> websockUserHash;
+  private static ConcurrentHashMap<String, OTWebSocketHandler> wsSessionHash;
 
-  public final static String getIpBySecurity(String security) {
-    OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
+  public final static String getIpByWebSocketSession(String wsSession) {
+    OTWebSocketHandler wsHandler = wsSessionHash.get(wsSession);
     if (wsHandler == null)
       return null;
     else
       return wsHandler.getIp();
   }
 
-  public final static String getIpByUid(Long uid) {
-    OTWebSocketHandler wsHandler = websockUserHash.get(uid);
-    if (wsHandler == null)
-      return null;
-    else
-      return wsHandler.getIp();
-  }
-
-  public final static boolean sendWebSocketMessage(String security, String msg, Object obj) {
-    OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
+  public final static boolean sendWebSocketMessage(String wsSession, String msg, Object obj) {
+    OTWebSocketHandler wsHandler = wsSessionHash.get(wsSession);
     if (wsHandler != null)
       return wsHandler.send(msg, obj);
     else
       return false;
   }
 
-  public final static boolean sendWebSocketMessage(Long uid, String msg, Object obj) {
-    OTWebSocketHandler wsHandler = websockUserHash.get(uid);
-    if (wsHandler != null)
-      return wsHandler.send(msg, obj);
-    else
-      return false;
-  }
 
-  public final static boolean responseWebSocketMessage(long callback, String security, CCReturn<?> obj) {
-    OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
+  public final static boolean responseWebSocketMessage(long callback, String wsSession, CCReturn<?> obj) {
+    OTWebSocketHandler wsHandler = wsSessionHash.get(wsSession);
     if (wsHandler != null)
       return wsHandler.response(callback, obj);
     else
@@ -108,8 +92,8 @@ public class OT {
     return msgPool.postMessage($compileMessage(OTMessageType.None, 0, null, 0, OT.getNodeByPath(target), msgName, args), delay);
   }
 
-  static OTMessage postMsgWithWebSocket(long callback, String security, long uid, String target, String msgName, Object... args) {
-    return msgPool.postMessage($compileMessage(OTMessageType.WebSocket, callback, security, uid, OT.getNodeByPath(target), msgName, args), 0);
+  static OTMessage postMsgWithWebSocket(long callback, String wsSession, long uid, String target, String msgName, Object... args) {
+    return msgPool.postMessage($compileMessage(OTMessageType.WebSocket, callback, wsSession, uid, OT.getNodeByPath(target), msgName, args), 0);
   }
 
   private static CCReturn<?> evalMsg(OTMessage msg) {
@@ -194,8 +178,7 @@ public class OT {
         OT.isDebug = isDebug;
         OT.websocketServer = new OTWebSocketServer(host, port);
         OT.currTimeMS = new AtomicLong(System.currentTimeMillis());
-        OT.websockSecurityHash = new ConcurrentHashMap<String, OTWebSocketHandler> ();
-        OT.websockUserHash = new ConcurrentHashMap<Long, OTWebSocketHandler> ();
+        OT.wsSessionHash = new ConcurrentHashMap<String, OTWebSocketHandler> ();
 
         OT.msgPool.turnOn();
 
@@ -252,8 +235,7 @@ public class OT {
 
       OT.currTimeMS = new AtomicLong(0);
 
-      OT.websockSecurityHash = null;
-      OT.websockUserHash = null;
+      OT.wsSessionHash = null;
 
       if (OT.rootNode != null) {
         ret = ret && OT.rootNode.$remove(true);
@@ -282,10 +264,10 @@ public class OT {
     }
   }
 
-  public static String getSecurity() {
+  public static String getWebSocketSession() {
     OTThread th = OTThread.currentThread();
     if (th != null) {
-      return th.currentMsg.security;
+      return th.currentMsg.wsSession;
     }
     else {
       return null;
@@ -337,18 +319,16 @@ public class OT {
     }
   }
 
-  static synchronized boolean $registerWebSocketSecurity(String security, OTWebSocketHandler wsHandler) {
-    OT.info("register security " + security);
-    return websockSecurityHash.putIfAbsent(security, wsHandler) == null;
+  static synchronized boolean $registerWebSocketSession(String wsSession, OTWebSocketHandler wsHandler) {
+    OT.info("register websocket session " + wsSession);
+    return wsSessionHash.putIfAbsent(wsSession, wsHandler) == null;
   }
 
-  static public synchronized boolean $unregisterWebSocketSecurity(String security) {
-    OT.info("unregister security " + security);
-    OTWebSocketHandler wsHandler =  websockSecurityHash.remove(security);
+  static synchronized public boolean $unregisterWebSocketSession(String wsSession) {
+    OT.info("unregister websocket session  " + wsSession);
+    OTWebSocketHandler wsHandler =  wsSessionHash.remove(wsSession);
 
     if (wsHandler != null) {
-      if (wsHandler.getUid() > 0)
-        OT.$unregisterWebSocketUser(wsHandler.getUid());
       wsHandler.close();
       return true;
     }
@@ -357,39 +337,6 @@ public class OT {
     }
   }
 
-  static public boolean $isWebSocketSecurityRegister(String security) {
-    return websockSecurityHash.containsKey(security);
-  }
-
-  public static synchronized boolean $registerWebSocketUser(String security, Long uid) {
-    OTWebSocketHandler wsHandler = websockSecurityHash.get(security);
-
-    if (wsHandler == null)
-      return false;
-
-    if (websockUserHash.containsKey(uid))
-      return false;
-
-    wsHandler.setUid(uid);
-    OT.info("register uid " + uid);
-
-    return websockUserHash.putIfAbsent(uid, wsHandler) == null;
-  }
-
-  public static synchronized boolean $unregisterWebSocketUser(Long uid) {
-    OTWebSocketHandler wsHandler = websockUserHash.remove(uid);
-
-    if (wsHandler == null)
-      return false;
-
-    wsHandler.setUid(0);
-    OT.info("unregister uid " + uid);
-    return true;
-  }
-
-  static public boolean $isWebSocketUserRegister(long uid) {
-    return websockUserHash.containsKey(uid);
-  }
 
   final static void $error(String msg) {
     log.error($getCallStackLog(msg, true, true));
@@ -456,7 +403,7 @@ public class OT {
     return sb.toString();
   }
 
-  private static OTMessage $compileMessage(OTMessageType type, long callback, String security, long uid,
+  private static OTMessage $compileMessage(OTMessageType type, long callback, String wsSession, long uid,
                                            OTNode target, String msgName, Object... args) {
     boolean needStopMessageService = false;
     OTThread th = OTThread.currentThread();
@@ -470,7 +417,7 @@ public class OT {
       return new OTMessage(
           type,
           callback,
-          security,
+          wsSession,
           uid,
           th.currentMsg.paramMap,
           msgName,
