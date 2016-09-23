@@ -24,6 +24,10 @@ public class CCWechat {
     if (retJSON == null)
       return null;
 
+    if (retJSON.has("errcode") && retJSON.getInt("errcode") != 0) {
+      return retJSON;
+    }
+
     String accessToken = retJSON.getString("access_token");
     String openID = retJSON.getString("openid");
 
