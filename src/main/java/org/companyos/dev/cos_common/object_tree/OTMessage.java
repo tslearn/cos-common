@@ -20,7 +20,6 @@ final public class OTMessage {
       OTMessageType.None,
       0,
       null,
-      0,
       null,
       OTConfig.RootMessageName,
       new OTNode(),
@@ -31,8 +30,7 @@ final public class OTMessage {
 
   OTMessageType type;
   long callback;
-  String wsSession;
-  long uid;
+  OTWebSocketHandler otWebSocketHandler;
   Object[] args;
   CCLightMap paramMap;
   String msgName;
@@ -44,11 +42,11 @@ final public class OTMessage {
   volatile private LinkedList<OTCallback> callbackPool;
 
 
-  public OTMessage(OTMessageType type, long callback, String wsSession, long uid, CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
+  public OTMessage(OTMessageType type, long callback, OTWebSocketHandler otWebSocketHandler, CCLightMap paramMap, String msgName, OTNode target, OTNode sender, int curDepth,
       String debug, Object[] args) {
     this.type = type;
     this.callback = callback;
-    this.wsSession = wsSession;
+    this.otWebSocketHandler = otWebSocketHandler;
     this.paramMap = paramMap;
     this.msgName = msgName;
     this.target = target;
@@ -56,7 +54,6 @@ final public class OTMessage {
     this.curDepth = curDepth;
     this.debug = debug;
     this.args = args;
-    this.uid = uid;
     this.status = OTMessageStatus.None;
   }
 

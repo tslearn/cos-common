@@ -1,7 +1,5 @@
 package org.companyos.dev.cos_common.object_tree;
 
-import java.util.UUID;
-
 import org.companyos.dev.cos_common.CCErrorManager;
 import org.companyos.dev.cos_common.CCReturn;
 import org.eclipse.jetty.websocket.api.Session;
@@ -22,31 +20,15 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private static final long ServerBack = 2;
 
   private Session session;
-  private String wsSession = UUID.randomUUID().toString();
-  private long uid = 0;
   private String ip = null;
+  private boolean isClosed = true;
 
   String getIp() {
     return this.ip;
   }
 
-  long getUid() {
-    return this.uid;
-  }
-
-  boolean setUid(long uid) {
-    if (this.uid == 0 || uid == 0) {
-      this.uid = uid;
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-
-  boolean response(long callback, CCReturn<?> ret) {
-    JSONObject r = null;
+  public boolean response(long callback, CCReturn<?> ret) {
+    JSONObject r;
 
     if (ret == null) {
       r = new JSONObject();
@@ -65,7 +47,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
     return _send(r.toString());
   }
 
-  boolean send(String message, Object value) {
+  public boolean send(String message, Object value) {
     JSONObject r = new JSONObject();
     r.put("c", 0);
     r.put("t", ServerBack);
@@ -86,6 +68,9 @@ public class OTWebSocketHandler extends WebSocketHandler {
     }
   }
 
+  public boolean isClosed() {
+    return this.isClosed;
+  }
   public void close() {
     this.session.close();
   }
@@ -94,16 +79,15 @@ public class OTWebSocketHandler extends WebSocketHandler {
   public void onConnect(Session session) {
     this.ip = session.getRemoteAddress().getHostName().toString();
     this.session = session;
-    OT.$registerWebSocketSession(this.wsSession, this);
-    this.send("WebSocket:open", this.wsSession);
-    OT.info("WebSocket connected! session id: " + this.wsSession, true);
+    this.isClosed = false;
+    this.send("WebSocket:open", null);
   }
 
   @OnWebSocketClose
   public void onClose(int statusCode, String reason) {
-    OT.$unregisterWebSocketSession(this.wsSession);
     this.session = null;
-    OT.info("disconnected! session id: " + this.wsSession);
+    this.ip = null;
+    this.isClosed = true;
   }
 
   @OnWebSocketError
@@ -139,7 +123,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
         passArgs[i] = v;
     }
 
-    OT.postMsgWithWebSocket(callback, this.wsSession, uid, target, msg, passArgs);
+    OT.postMsgWithWebSocket(callback, this, target, msg, passArgs);
   }
 
   @Override
