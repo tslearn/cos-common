@@ -13,8 +13,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
-@WebSocket
+@WebSocket(maxIdleTime= 20*60*1000)
 public class OTWebSocketHandler extends WebSocketHandler {
   private static final long ClientBack = 1;
   private static final long ServerBack = 2;
@@ -57,6 +56,10 @@ public class OTWebSocketHandler extends WebSocketHandler {
   }
 
   private  boolean _send(String text) {
+    if (this.isClosed()) {
+      return false;
+    }
+
     OT.info("Send back to client: " + text);
     try {
       this.session.getRemote().sendString(text);
