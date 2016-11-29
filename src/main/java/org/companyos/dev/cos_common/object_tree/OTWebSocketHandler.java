@@ -22,7 +22,7 @@ public class OTWebSocketHandler extends WebSocketHandler {
   private String ip = null;
   private boolean isClosed = true;
 
-  String getIp() {
+  public String getIp() {
     return this.ip;
   }
 
