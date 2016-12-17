@@ -12,7 +12,7 @@ import org.junit.Test;
 public class OTTest extends OTNode {
   @Before
   public void onBefore() throws Exception {
-    OT.start("0.0.0.0", 23159, OTRootNodeTest.class, true, 4, null, null, null);
+    OT.start("0.0.0.0", 23159, 23160, OTRootNodeTest.class, true, 4, null, null, null);
   }
 
   @After

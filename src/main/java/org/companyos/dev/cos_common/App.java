@@ -17,7 +17,13 @@ class OTRoot extends OTNode {
 }
 
 public class App {
+  static public final String KeyStorePath = "sample.jks";
+  static public final String KeyStorePassword = "secret";
+  static public final String KeyManagerPassword = "password";
+
   public static void main(String[] args) {
-    OT.start("0.0.0.0", 8999, OTRoot.class, true, 4, null, null, null);
+    OT.start("0.0.0.0", 20001, 20002,  OTRoot.class, true, 8, KeyStorePath, KeyStorePassword, KeyManagerPassword);
   }
 }
+
+

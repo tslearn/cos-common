@@ -10,17 +10,24 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class OTWebSocketServer {
   private Server websocketServer = null;
-  private int port = 0; 
+  private int wsPort = 0;
+  private int wssPort = 0;
   private String hostname = null;
 
-  public OTWebSocketServer(String hostname, int port) {
-    if (port <= 0 || port > 65535) {
-    	OT.$error("OTWebSocketServer port " + port + " is illegal!");
+  public OTWebSocketServer(String hostname, int wsPort, int wssPort) {
+    if (wsPort <= 0 || wsPort > 65535) {
+    	OT.$error("OTWebSocketServer ws Port " + wsPort + " is illegal!");
     	return;
     }
-    
+
+    if (wssPort <= 0 || wssPort > 65535) {
+      OT.$error("OTWebSocketServer wss Port " + wssPort + " is illegal!");
+      return;
+    }
+
     this.hostname = hostname;
-    this.port = port;
+    this.wsPort = wsPort;
+    this.wssPort = wssPort;
   }
   
   public boolean start(
@@ -31,11 +38,18 @@ public class OTWebSocketServer {
     try {
       QueuedThreadPool threadPool = new QueuedThreadPool();
       threadPool.setMaxThreads(webSocketThreadPoolSize);
-
       this.websocketServer = new Server(threadPool);
-      ServerConnector connector = null;
 
-      if (keystorePath != null && keystorePath.length() > 0) {
+      // add ws connect
+      ServerConnector wsConnector = new ServerConnector(this.websocketServer);
+      if (this.hostname != null) {
+        wsConnector.setHost(this.hostname);
+      }
+      wsConnector.setPort(this.wsPort);
+      this.websocketServer.addConnector(wsConnector);
+
+
+      if (this.wssPort > 0 && keystorePath != null && keystorePath.length() > 0) {
         // connector configuration
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStoreResource(Resource.newClassPathResource(keystorePath));
@@ -43,18 +57,14 @@ public class OTWebSocketServer {
         sslContextFactory.setKeyManagerPassword(keyManagerPassword);
         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString());
         HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(new HttpConfiguration());
-        connector = new ServerConnector(this.websocketServer, sslConnectionFactory, httpConnectionFactory);
-      }
-      else {
-        connector = new ServerConnector(this.websocketServer);
-      }
+        ServerConnector wssConnector = new ServerConnector(this.websocketServer, sslConnectionFactory, httpConnectionFactory);
+        if (this.hostname != null) {
+          wssConnector.setHost(this.hostname);
+        }
 
-      if (this.hostname != null) {
-        connector.setHost(this.hostname);
+        wssConnector.setPort(this.wssPort);
+        this.websocketServer.addConnector(wssConnector);
       }
-
-      connector.setPort(this.port);
-      this.websocketServer.addConnector(connector);
 
       ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
       context.setContextPath("/");

@@ -134,7 +134,8 @@ public class OT {
 
   synchronized public static OTNode start(
       String host,
-      int port,
+      int wsPort,
+      int wssPort,
       Class<?> rootNodeCls,
       boolean isDebug,
       int webSocketThreadPoolSize,
@@ -149,7 +150,7 @@ public class OT {
         OTThread.startMessageService();
         isStartMessageService = true;
         OT.isDebug = isDebug;
-        OT.websocketServer = new OTWebSocketServer(host, port);
+        OT.websocketServer = new OTWebSocketServer(host, wsPort, wssPort);
         OT.currTimeMS = new AtomicLong(System.currentTimeMillis());
 
         OT.msgPool.turnOn();
